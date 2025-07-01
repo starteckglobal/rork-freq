@@ -1,4 +1,5 @@
 import { StateCreator, StoreApi } from 'zustand';
+import { analyticsEventBus } from './analytics-event-bus';
 
 interface AnalyticsMiddlewareOptions<T> {
   storeName: string;
@@ -64,8 +65,6 @@ export function createAnalyticsMiddleware<T extends object>(
         Object.keys(changes).forEach((actionName) => {
           // Get the analytics event bus (imported here to avoid circular dependencies)
           try {
-            const { analyticsEventBus } = require('./analytics-event-bus');
-            
             // Basic event data
             const eventData: Record<string, any> = {
               store: storeName,

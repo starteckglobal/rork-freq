@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Track } from '@/types/audio';
 import { useUserStore } from './user-store';
 import { createAnalyticsMiddleware } from '@/services/analytics-middleware';
+import { analyticsEventBus } from '@/services/analytics-event-bus';
 import { StoreApi } from 'zustand';
 
 export type PlayerState = 'playing' | 'paused' | 'loading' | 'stopped';
@@ -135,7 +136,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     
     // Track play event in analytics
     try {
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('track_play', {
         track_id: track.id,
         track_title: track.title,
@@ -165,7 +165,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     
     // Track queue play event
     try {
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('custom_event', {
         category: 'player',
         action: 'play_queue',
@@ -189,8 +188,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     if (!currentTrack) return;
     
     try {
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
-      
       if (playerState === 'playing') {
         // Track pause event
         analyticsEventBus.publish('track_pause', {
@@ -229,7 +226,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     if (currentTrack) {
       try {
         // Track pause event
-        const { analyticsEventBus } = require('@/services/analytics-event-bus');
         analyticsEventBus.publish('track_pause', {
           track_id: currentTrack.id,
           track_title: currentTrack.title,
@@ -250,7 +246,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     if (currentTrack) {
       try {
         // Track stop event
-        const { analyticsEventBus } = require('@/services/analytics-event-bus');
         analyticsEventBus.publish('custom_event', {
           category: 'player',
           action: 'stop',
@@ -276,7 +271,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     if (currentTrack) {
       try {
         // Track seek event
-        const { analyticsEventBus } = require('@/services/analytics-event-bus');
         analyticsEventBus.publish('track_seek', {
           track_id: currentTrack.id,
           track_title: currentTrack.title,
@@ -299,7 +293,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     
     try {
       // Track skip event
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('track_skip', {
         track_id: currentTrack.id,
         track_title: currentTrack.title,
@@ -363,7 +356,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     
     try {
       // Track next track play event
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('track_play', {
         track_id: nextTrack.id,
         track_title: nextTrack.title,
@@ -394,7 +386,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
       // Track restart event
       if (currentTrack) {
         try {
-          const { analyticsEventBus } = require('@/services/analytics-event-bus');
           analyticsEventBus.publish('custom_event', {
             category: 'player',
             action: 'restart_track',
@@ -416,7 +407,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     
     try {
       // Track skip event
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('track_skip', {
         track_id: currentTrack.id,
         track_title: currentTrack.title,
@@ -433,7 +423,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     
     try {
       // Track previous track play event
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('track_play', {
         track_id: previousTrack.id,
         track_title: previousTrack.title,
@@ -463,7 +452,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     
     try {
       // Track add to queue event
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('custom_event', {
         category: 'player',
         action: 'add_to_queue',
@@ -487,7 +475,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     if (track) {
       try {
         // Track remove from queue event
-        const { analyticsEventBus } = require('@/services/analytics-event-bus');
         analyticsEventBus.publish('custom_event', {
           category: 'player',
           action: 'remove_from_queue',
@@ -511,7 +498,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     
     try {
       // Track clear queue event
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('custom_event', {
         category: 'player',
         action: 'clear_queue',
@@ -538,7 +524,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     
     try {
       // Track repeat mode change
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('custom_event', {
         category: 'player',
         action: 'toggle_repeat',
@@ -557,7 +542,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     
     try {
       // Track shuffle mode change
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('custom_event', {
         category: 'player',
         action: 'toggle_shuffle',
@@ -573,7 +557,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
   setVolume: (volume: number) => {
     try {
       // Track volume change
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('custom_event', {
         category: 'player',
         action: 'volume_change',
@@ -592,7 +575,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     
     try {
       // Track player maximize
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('custom_event', {
         category: 'ui',
         action: 'maximize_player',
@@ -611,7 +593,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     
     try {
       // Track player minimize
-      const { analyticsEventBus } = require('@/services/analytics-event-bus');
       analyticsEventBus.publish('custom_event', {
         category: 'ui',
         action: 'minimize_player',
@@ -643,7 +624,6 @@ const createPlayerStore = (set: StoreApi<PlayerStore>["setState"], get: StoreApi
     if (time >= duration - 0.5 && currentTrack) {
       try {
         // Track completion event
-        const { analyticsEventBus } = require('@/services/analytics-event-bus');
         analyticsEventBus.publish('track_complete', {
           track_id: currentTrack.id,
           track_title: currentTrack.title,
