@@ -16,7 +16,7 @@ import {
 import { X, Eye, EyeOff, Mail, Lock, User } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { useUserStore } from '@/store/user-store';
-import { freqLogoUrl } from '@/constants/images';
+import { freqLogo } from '@/constants/images';
 import { analytics } from '@/services/analytics';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
 import { useRouter } from 'expo-router';
@@ -126,8 +126,9 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
       .then(success => {
         if (success) {
           // Track registration in analytics
-          analyticsEventBus.publish('user_registration', {
-            registration_method: 'email',
+          analyticsEventBus.publish('custom_event', {
+            category: 'user',
+            action: 'registration',
             username,
           });
           
@@ -187,7 +188,7 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
           
           <View style={styles.logoContainer}>
             <Image
-              source={{ uri: freqLogoUrl }}
+              source={freqLogo}
               style={styles.logo}
               resizeMode="contain"
             />

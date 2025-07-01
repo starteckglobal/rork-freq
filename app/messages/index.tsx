@@ -22,7 +22,7 @@ import {
 } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { users } from '@/mocks/users';
-import { freqLogoUrl, defaultAvatarUri } from '@/constants/images';
+import { freqLogo, defaultAvatarUri } from '@/constants/images';
 import { useUserStore } from '@/store/user-store';
 import LoginModal from '@/components/LoginModal';
 
@@ -79,12 +79,14 @@ const MESSAGE_REQUESTS = [
     userId: '8',
     lastMessage: "Hi, I'm a producer looking to work with vocalists",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
+    unread: 1,
   },
   {
     id: '8',
     userId: '9',
     lastMessage: "Your music is amazing! Would love to connect",
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4), // 4 days ago
+    unread: 1,
   }
 ];
 
@@ -205,7 +207,7 @@ export default function MessagesScreen() {
           title: 'Messages',
           headerLeft: () => (
             <Image 
-              source={{ uri: freqLogoUrl }} 
+              source={freqLogo} 
               style={styles.headerLogo}
               resizeMode="contain"
             />
@@ -242,7 +244,7 @@ export default function MessagesScreen() {
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.push('/')}>
             <Image 
-              source={{ uri: freqLogoUrl }} 
+              source={freqLogo} 
               style={styles.headerLogo}
               resizeMode="contain"
             />
@@ -358,9 +360,6 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginLeft: 16,
-    backgroundColor: 'white',
-    borderRadius: 6,
-    padding: 3,
   },
   headerRight: {
     flexDirection: 'row',
