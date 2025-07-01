@@ -52,7 +52,9 @@ export default function TabLayout() {
 
   // Track tab changes
   const handleTabPress = (tabName: string) => {
-    analyticsEventBus.publish('tab_change', {
+    analyticsEventBus.publish('custom_event', {
+      category: 'navigation',
+      action: 'tab_change',
       tab_name: tabName,
       previous_tab: null, // We don't have access to the previous tab here
       user_id: useUserStore.getState().currentUser?.id,

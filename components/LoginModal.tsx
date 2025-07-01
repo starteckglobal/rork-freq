@@ -18,6 +18,7 @@ import { colors } from '@/constants/colors';
 import { useUserStore } from '@/store/user-store';
 import { freqLogoUrl } from '@/constants/images';
 import { analytics } from '@/services/analytics';
+import { analyticsEventBus } from '@/services/analytics-event-bus';
 import { useRouter } from 'expo-router';
 
 interface LoginModalProps {
@@ -125,8 +126,9 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
       .then(success => {
         if (success) {
           // Track registration in analytics
-          analytics.track('user_login', {
-            login_method: 'registration',
+          analyticsEventBus.publish('user_registration', {
+            registration_method: 'email',
+            username,
           });
           
           // Navigate to SyncLab after successful registration

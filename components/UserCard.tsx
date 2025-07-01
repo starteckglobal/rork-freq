@@ -35,7 +35,8 @@ export default function UserCard({ user, onPress }: UserCardProps) {
     }
   };
   
-  const handleFollow = () => {
+  const handleFollow = (e: any) => {
+    e.stopPropagation();
     if (following) {
       unfollowUser(user.id);
       setFollowing(false);

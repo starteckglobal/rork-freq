@@ -69,9 +69,7 @@ export default function SearchScreen() {
   // Track search result clicks
   const handleTrackClick = (trackId: string, position: number) => {
     if (searchPerformed) {
-      analyticsEventBus.publish('custom_event', {
-        category: 'search',
-        action: 'result_click',
+      analyticsEventBus.publish('search_result_click', {
         result_type: 'track',
         result_id: trackId,
         position,
@@ -82,9 +80,7 @@ export default function SearchScreen() {
   
   const handleUserClick = (userId: string, position: number) => {
     if (searchPerformed) {
-      analyticsEventBus.publish('custom_event', {
-        category: 'search',
-        action: 'result_click',
+      analyticsEventBus.publish('search_result_click', {
         result_type: 'user',
         result_id: userId,
         position,
@@ -106,9 +102,7 @@ export default function SearchScreen() {
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     
-    analyticsEventBus.publish('custom_event', {
-      category: 'search',
-      action: 'filter_apply',
+    analyticsEventBus.publish('search_filter_apply', {
       filter_type: 'tab',
       filter_value: tab,
       query: searchQuery,
@@ -131,9 +125,7 @@ export default function SearchScreen() {
     if (filteredTracks.length === 0 && filteredUsers.length === 0) {
       // Track no results
       if (searchPerformed) {
-        analyticsEventBus.publish('custom_event', {
-          category: 'search',
-          action: 'no_results',
+        analyticsEventBus.publish('search_no_results', {
           query: searchQuery,
         });
       }
