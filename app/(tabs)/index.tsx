@@ -152,6 +152,9 @@ const styles = StyleSheet.create({
   logo: {
     width: 40,
     height: 40,
+    backgroundColor: 'white',
+    borderRadius: 8,
+    padding: 4,
   },
   headerRightContainer: {
     flexDirection: 'row',

@@ -358,6 +358,9 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginLeft: 16,
+    backgroundColor: 'white',
+    borderRadius: 6,
+    padding: 3,
   },
   headerRight: {
     flexDirection: 'row',
