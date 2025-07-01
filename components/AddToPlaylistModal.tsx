@@ -40,9 +40,10 @@ export default function AddToPlaylistModal({
   useEffect(() => {
     if (visible) {
       // Find playlists that already contain this track
-      const initialSelections = userPlaylists
-        ? userPlaylists.filter(playlist => playlist.tracks.includes(track.id))
-                      .map(playlist => playlist.id)
+      const initialSelections = userPlaylists && userPlaylists.length > 0
+        ? userPlaylists.filter(playlist => 
+            playlist.tracks && playlist.tracks.includes(track.id)
+          ).map(playlist => playlist.id)
         : [];
       
       setSelectedPlaylists(initialSelections);
@@ -69,7 +70,7 @@ export default function AddToPlaylistModal({
       // For each playlist, check if it should contain the track
       for (const playlist of allPlaylists) {
         const shouldContainTrack = selectedPlaylists.includes(playlist.id);
-        const doesContainTrack = playlist.tracks.includes(track.id);
+        const doesContainTrack = playlist.tracks && playlist.tracks.includes(track.id);
         
         // If the track should be in the playlist but isn't, add it
         if (shouldContainTrack && !doesContainTrack) {
@@ -129,7 +130,7 @@ export default function AddToPlaylistModal({
             {item.name}
           </Text>
           <Text style={styles.playlistDetails} numberOfLines={1}>
-            {item.tracks.length} {item.tracks.length === 1 ? 'track' : 'tracks'}
+            {item.tracks ? item.tracks.length : 0} {(item.tracks?.length || 0) === 1 ? 'track' : 'tracks'}
             {item.isPrivate ? ' • Private' : ''}
           </Text>
         </View>
@@ -233,7 +234,7 @@ export default function AddToPlaylistModal({
       <PlaylistCreationModal
         visible={showCreatePlaylist}
         onClose={() => setShowCreatePlaylist(false)}
-        initialTrackId={track.id}
+        onSuccess={handlePlaylistCreated}
       />
     </>
   );

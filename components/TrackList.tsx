@@ -6,6 +6,7 @@ import { colors } from '@/constants/colors';
 import { Track } from '@/types/audio';
 import TrackCard from './TrackCard';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
+import { usePlayerStore } from '@/store/player-store';
 
 export interface TrackListProps {
   title: string;
@@ -25,6 +26,7 @@ export default function TrackList({
   testID
 }: TrackListProps) {
   const router = useRouter();
+  const { playTrack } = usePlayerStore();
   
   const handleViewAll = () => {
     // Track view all click
@@ -58,7 +60,7 @@ export default function TrackList({
     });
     
     // Play the track
-    usePlayerStore.getState().playTrack(track);
+    playTrack(track);
   };
   
   // Ensure tracks is always an array
@@ -129,6 +131,3 @@ const styles = StyleSheet.create({
     paddingBottom: 8,
   },
 });
-
-// Import at the end to avoid circular dependency issues
-import { usePlayerStore } from '@/store/player-store';

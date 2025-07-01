@@ -55,21 +55,36 @@ export default function PlaylistScreen() {
     const foundPlaylist = playlists.find(p => p.id === id);
     
     if (foundPlaylist) {
-      setPlaylist(foundPlaylist);
+      // Convert the mock playlist format to the expected format
+      const convertedPlaylist: Playlist = {
+        id: foundPlaylist.id,
+        name: foundPlaylist.title,
+        description: '',
+        coverArt: foundPlaylist.coverArt,
+        tracks: foundPlaylist.trackIds || [],
+        createdBy: foundPlaylist.creatorId,
+        createdAt: new Date().toISOString(),
+        isPrivate: !foundPlaylist.isPublic,
+        likes: 0,
+        plays: 0,
+      };
+      
+      setPlaylist(convertedPlaylist);
       
       // Find the creator
-      const playlistCreator = users.find(user => user.id === foundPlaylist.createdBy);
+      const playlistCreator = users.find(user => user.id === foundPlaylist.creatorId);
       setCreator(playlistCreator);
       
-      // Get the tracks in the playlist
+      // Get the tracks in the playlist - safely handle undefined trackIds
+      const trackIds = foundPlaylist.trackIds || [];
       const foundTracks = tracks.filter(track => 
-        foundPlaylist.tracks.includes(track.id)
+        trackIds.includes(track.id)
       );
       setPlaylistTracks(foundTracks);
       
-      // Check if the playlist is liked by the current user
-      if (isLoggedIn && foundPlaylist.id) {
-        setIsLiked(isPlaylistLiked(foundPlaylist.id));
+      // Check if the playlist is liked by the current user - safely handle undefined
+      if (isLoggedIn && convertedPlaylist.id) {
+        setIsLiked(isPlaylistLiked(convertedPlaylist.id));
       }
     }
     
@@ -80,7 +95,7 @@ export default function PlaylistScreen() {
   }, [id, isLoggedIn, isPlaylistLiked]);
   
   const handlePlayAll = () => {
-    if (playlistTracks.length > 0) {
+    if (playlistTracks && playlistTracks.length > 0) {
       playTrack(playlistTracks[0]);
     }
   };
@@ -146,7 +161,9 @@ export default function PlaylistScreen() {
   };
   
   const calculateTotalDuration = () => {
-    const totalSeconds = playlistTracks.reduce((total, track) => total + track.duration, 0);
+    if (!playlistTracks || playlistTracks.length === 0) return '0 min';
+    
+    const totalSeconds = playlistTracks.reduce((total, track) => total + (track.duration || 0), 0);
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     
@@ -224,7 +241,7 @@ export default function PlaylistScreen() {
             
             <View style={styles.playlistStats}>
               <Text style={styles.statsText}>
-                {playlistTracks.length} {playlistTracks.length === 1 ? 'track' : 'tracks'} • {calculateTotalDuration()}
+                {playlistTracks ? playlistTracks.length : 0} {(playlistTracks?.length || 0) === 1 ? 'track' : 'tracks'} • {calculateTotalDuration()}
               </Text>
               
               <View style={styles.privacyBadge}>
@@ -250,7 +267,7 @@ export default function PlaylistScreen() {
               <TouchableOpacity 
                 style={styles.playButton}
                 onPress={handlePlayAll}
-                disabled={playlistTracks.length === 0}
+                disabled={!playlistTracks || playlistTracks.length === 0}
               >
                 <Play size={20} color={colors.text} fill={colors.text} />
                 <Text style={styles.playButtonText}>Play All</Text>
@@ -310,7 +327,7 @@ export default function PlaylistScreen() {
             <Text style={styles.tracksDuration}>Duration</Text>
           </View>
           
-          {playlistTracks.length > 0 ? (
+          {playlistTracks && playlistTracks.length > 0 ? (
             <View style={styles.tracksList}>
               {playlistTracks.map((track, index) => (
                 <TouchableOpacity 
@@ -322,10 +339,22 @@ export default function PlaylistScreen() {
                     <Text style={styles.trackNumber}>{index + 1}</Text>
                   </View>
                   
-                  <Image 
-                    source={{ uri: track.coverArt }} 
-                    style={styles.trackCover}
-                  />
+                  <View style={styles.trackCoverContainer}>
+                    <Image 
+                      source={{ uri: track.coverArt }} 
+                      style={styles.trackCover}
+                    />
+                    <TouchableOpacity 
+                      style={styles.trackPlayButton}
+                      onPress={() => playTrack(track)}
+                    >
+                      {currentTrack?.id === track.id && isPlaying ? (
+                        <Pause size={16} color={colors.text} />
+                      ) : (
+                        <Play size={16} color={colors.text} fill={colors.text} />
+                      )}
+                    </TouchableOpacity>
+                  </View>
                   
                   <View style={styles.trackInfo}>
                     <Text style={styles.trackTitle}>{track.title}</Text>
@@ -333,7 +362,7 @@ export default function PlaylistScreen() {
                   </View>
                   
                   <Text style={styles.trackDuration}>
-                    {formatDuration(track.duration)}
+                    {formatDuration(track.duration || 0)}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -513,11 +542,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textSecondary,
   },
+  trackCoverContainer: {
+    position: 'relative',
+    marginRight: 12,
+  },
   trackCover: {
     width: 48,
     height: 48,
     borderRadius: 4,
-    marginRight: 12,
+  },
+  trackPlayButton: {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    transform: [{ translateX: -12 }, { translateY: -12 }],
   },
   trackInfo: {
     flex: 1,

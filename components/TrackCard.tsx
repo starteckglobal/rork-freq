@@ -48,7 +48,7 @@ export default function TrackCard({
   
   const isPlaying = currentTrack?.id === track.id && playerState === 'playing';
   const isSelected = currentTrack?.id === track.id;
-  const isLiked = isLoggedIn && likedTracks.includes(track.id);
+  const isLiked = isLoggedIn && likedTracks && likedTracks.includes(track.id);
   
   const handlePress = () => {
     trackInteraction('press', { isSelected });
@@ -237,23 +237,25 @@ export default function TrackCard({
               {index + 1}
             </Text>
           )}
-          <Image 
-            source={{ uri: track.coverArt || defaultCoverArt }}
-            style={styles.artwork}
-          />
-          <TouchableOpacity 
-            style={[
-              styles.playButton, 
-              (isPlaying || isHovering) && styles.visiblePlayButton
-            ]}
-            onPress={handlePress}
-          >
-            {isPlaying ? (
-              <Pause size={16} color={colors.text} />
-            ) : (
-              <Play size={16} color={colors.text} fill={colors.text} />
-            )}
-          </TouchableOpacity>
+          <View style={styles.artworkContainer}>
+            <Image 
+              source={{ uri: track.coverArt || defaultCoverArt }}
+              style={styles.artwork}
+            />
+            <TouchableOpacity 
+              style={[
+                styles.playButton, 
+                (isPlaying || isHovering) && styles.visiblePlayButton
+              ]}
+              onPress={handlePress}
+            >
+              {isPlaying ? (
+                <Pause size={16} color={colors.text} />
+              ) : (
+                <Play size={16} color={colors.text} fill={colors.text} />
+              )}
+            </TouchableOpacity>
+          </View>
         </View>
         
         <View style={styles.infoContainer}>
@@ -284,7 +286,7 @@ export default function TrackCard({
         </View>
         
         <View style={styles.rightSection}>
-          <Text style={styles.duration}>{formatDuration(track.duration)}</Text>
+          <Text style={styles.duration}>{formatDuration(track.duration || 0)}</Text>
           
           {showOptions && (
             <View style={styles.actions}>
@@ -355,7 +357,6 @@ const styles = StyleSheet.create({
     backgroundColor: `${colors.primary}20`,
   },
   leftSection: {
-    position: 'relative',
     flexDirection: 'row',
     alignItems: 'center',
     marginRight: 12,
@@ -367,6 +368,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginRight: 8,
   },
+  artworkContainer: {
+    position: 'relative',
+  },
   artwork: {
     width: 48,
     height: 48,
@@ -374,15 +378,15 @@ const styles = StyleSheet.create({
   },
   playButton: {
     position: 'absolute',
-    right: 0,
     top: '50%',
+    left: '50%',
     width: 24,
     height: 24,
     borderRadius: 12,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
-    transform: [{ translateY: -12 }],
+    transform: [{ translateX: -12 }, { translateY: -12 }],
     opacity: 0,
   },
   visiblePlayButton: {

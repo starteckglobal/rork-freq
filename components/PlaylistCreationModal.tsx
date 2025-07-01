@@ -47,12 +47,7 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
     
     try {
       // Create playlist
-      const playlistId = createPlaylist({
-        name: name.trim(),
-        description: description.trim(),
-        isPrivate,
-        tracks: []
-      });
+      const playlistId = createPlaylist(name.trim(), description.trim(), isPrivate);
       
       // Track playlist creation
       analyticsEventBus.publish('playlist_create', {
