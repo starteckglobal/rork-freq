@@ -32,7 +32,7 @@ import {
 import { colors } from '@/constants/colors';
 import { useUserStore } from '@/store/user-store';
 import { usePlayerStore } from '@/store/player-store';
-import { defaultAvatarUri } from '@/constants/images';
+import { defaultAvatarUri, freqLogoUrl } from '@/constants/images';
 import MiniPlayer from '@/components/MiniPlayer';
 import LoginModal from '@/components/LoginModal';
 import UploadTrackModal from '@/components/UploadTrackModal';
@@ -136,12 +136,25 @@ export default function ProfileScreen() {
   const handlePlayTrack = (track: Track) => {
     playTrack(track);
   };
+
+  const handleLogoPress = () => {
+    router.push('/(tabs)');
+  };
   
   if (!isLoggedIn) {
     return (
       <SafeAreaView style={styles.container}>
         <Stack.Screen options={{ 
           title: 'Profile',
+          headerLeft: () => (
+            <TouchableOpacity onPress={handleLogoPress}>
+              <Image 
+                source={{ uri: freqLogoUrl }} 
+                style={styles.headerLogo}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          ),
           headerRight: () => (
             <TouchableOpacity 
               style={styles.headerButton}
@@ -177,6 +190,15 @@ export default function ProfileScreen() {
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ 
         title: 'Profile',
+        headerLeft: () => (
+          <TouchableOpacity onPress={handleLogoPress}>
+            <Image 
+              source={{ uri: freqLogoUrl }} 
+              style={styles.headerLogo}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+        ),
         headerRight: () => (
           <View style={styles.headerButtons}>
             <TouchableOpacity 
@@ -532,6 +554,11 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     marginHorizontal: 8,
+  },
+  headerLogo: {
+    width: 30,
+    height: 30,
+    marginLeft: 8,
   },
   scrollView: {
     flex: 1,

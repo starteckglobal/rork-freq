@@ -11,7 +11,7 @@ import {
   Image,
   Dimensions
 } from 'react-native';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { Search, X } from 'lucide-react-native';
 import TrackCard from '@/components/TrackCard';
 import UserCard from '@/components/UserCard';
@@ -37,6 +37,7 @@ export default function SearchScreen() {
   const { currentTrack, isMinimized } = usePlayerStore();
   const analytics = useAnalytics();
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const router = useRouter();
   
   const filteredTracks = searchQuery 
     ? tracks.filter(track => 
@@ -69,7 +70,9 @@ export default function SearchScreen() {
   // Track search result clicks
   const handleTrackClick = (trackId: string, position: number) => {
     if (searchPerformed) {
-      analyticsEventBus.publish('search_result_click', {
+      analyticsEventBus.publish('custom_event', {
+        category: 'search',
+        action: 'result_click',
         result_type: 'track',
         result_id: trackId,
         position,
@@ -80,7 +83,9 @@ export default function SearchScreen() {
   
   const handleUserClick = (userId: string, position: number) => {
     if (searchPerformed) {
-      analyticsEventBus.publish('search_result_click', {
+      analyticsEventBus.publish('custom_event', {
+        category: 'search',
+        action: 'result_click',
         result_type: 'user',
         result_id: userId,
         position,
@@ -102,7 +107,9 @@ export default function SearchScreen() {
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     
-    analyticsEventBus.publish('search_filter_apply', {
+    analyticsEventBus.publish('custom_event', {
+      category: 'search',
+      action: 'filter_apply',
       filter_type: 'tab',
       filter_value: tab,
       query: searchQuery,
@@ -118,6 +125,10 @@ export default function SearchScreen() {
       genre,
     });
   };
+
+  const handleLogoPress = () => {
+    router.push('/(tabs)');
+  };
   
   const renderSearchResults = () => {
     if (!searchQuery) return null;
@@ -125,7 +136,9 @@ export default function SearchScreen() {
     if (filteredTracks.length === 0 && filteredUsers.length === 0) {
       // Track no results
       if (searchPerformed) {
-        analyticsEventBus.publish('search_no_results', {
+        analyticsEventBus.publish('custom_event', {
+          category: 'search',
+          action: 'no_results',
           query: searchQuery,
         });
       }
@@ -256,11 +269,13 @@ export default function SearchScreen() {
       
       <View style={styles.header}>
         <View style={styles.searchBarHeader}>
-          <Image 
-            source={{ uri: freqLogoUrl }} 
-            style={styles.logo}
-            resizeMode="contain"
-          />
+          <TouchableOpacity onPress={handleLogoPress}>
+            <Image 
+              source={{ uri: freqLogoUrl }} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
           <Text style={styles.headerTitle}>Search</Text>
         </View>
         <View style={styles.searchContainer}>
