@@ -188,7 +188,9 @@ export default function TrackCard({
         {
           text: "Share",
           onPress: () => {
-            analyticsEventBus.publish('track_share', {
+            analyticsEventBus.publish('custom_event', {
+              category: 'sharing',
+              action: 'track_share',
               track_id: track.id,
               track_title: track.title,
               share_method: 'native_share',

@@ -55,21 +55,7 @@ export default function PlaylistScreen() {
     const foundPlaylist = playlists.find(p => p.id === id);
     
     if (foundPlaylist) {
-      // Convert the mock playlist format to the expected format
-      const convertedPlaylist: Playlist = {
-        id: foundPlaylist.id,
-        name: foundPlaylist.title,
-        description: '',
-        coverArt: foundPlaylist.coverArt,
-        tracks: foundPlaylist.trackIds || [],
-        createdBy: foundPlaylist.creatorId,
-        createdAt: new Date().toISOString(),
-        isPrivate: !foundPlaylist.isPublic,
-        likes: 0,
-        plays: 0,
-      };
-      
-      setPlaylist(convertedPlaylist);
+      setPlaylist(foundPlaylist);
       
       // Find the creator
       const playlistCreator = users.find(user => user.id === foundPlaylist.creatorId);
@@ -83,8 +69,8 @@ export default function PlaylistScreen() {
       setPlaylistTracks(foundTracks);
       
       // Check if the playlist is liked by the current user - safely handle undefined
-      if (isLoggedIn && convertedPlaylist.id) {
-        setIsLiked(isPlaylistLiked(convertedPlaylist.id));
+      if (isLoggedIn && foundPlaylist.id) {
+        setIsLiked(isPlaylistLiked(foundPlaylist.id));
       }
     }
     

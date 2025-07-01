@@ -36,12 +36,20 @@ export interface User {
 export interface Playlist {
   id: string;
   name: string;
+  title: string;
   description?: string;
   coverArt?: string;
   tracks: string[];
+  trackIds: string[];
   createdBy: string;
+  creatorId: string;
+  creatorName: string;
+  trackCount: number;
   isPrivate: boolean;
+  isPublic: boolean;
   createdAt: number;
+  likes?: number;
+  plays?: number;
 }
 
 export interface Album {
