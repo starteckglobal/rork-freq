@@ -33,7 +33,14 @@ export type AnalyticsEventType =
   | 'performance_metric'
   | 'custom_event'
   | 'tab_change'
-  | 'user_registration';
+  | 'user_registration'
+  | 'settings_updated'
+  | 'security_updated'
+  | 'account_deleted'
+  | 'data_exported'
+  | 'cache_cleared'
+  | 'privacy_setting_changed'
+  | 'playback_setting_changed';
 
 interface AnalyticsEvent {
   type: AnalyticsEventType;
