@@ -86,7 +86,7 @@ export interface UserState {
   addToRecentlyPlayed: (trackId: string) => void;
   
   // Playlists
-  createPlaylist: (name: string, description?: string, isPrivate?: boolean) => string;
+  createPlaylist: (name: string, description?: string, isPrivate?: boolean, coverArt?: string | null) => string;
   updatePlaylist: (playlistId: string, updates: Partial<Playlist>) => void;
   deletePlaylist: (playlistId: string) => void;
   addTrackToPlaylist: (playlistId: string, trackId: string) => void;
@@ -465,7 +465,7 @@ export const useUserStore = create<UserState>()(
       },
       
       // Playlists
-      createPlaylist: (name, description = '', isPrivate = false) => {
+      createPlaylist: (name, description = '', isPrivate = false, coverArt = null) => {
         const { userPlaylists, currentUser } = get();
         
         if (!currentUser) {
@@ -477,6 +477,7 @@ export const useUserStore = create<UserState>()(
           id: generateId(),
           name,
           description,
+          coverArt: coverArt || undefined,
           tracks: [],
           createdBy: currentUser.id,
           createdAt: new Date().toISOString(),
@@ -494,6 +495,7 @@ export const useUserStore = create<UserState>()(
           playlist_id: newPlaylist.id,
           playlist_name: name,
           is_private: isPrivate,
+          has_cover_art: !!coverArt,
         });
         
         return newPlaylist.id;

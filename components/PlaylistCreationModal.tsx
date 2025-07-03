@@ -9,9 +9,12 @@ import {
   Switch,
   Platform,
   KeyboardAvoidingView,
-  ScrollView
+  ScrollView,
+  Image,
+  Alert
 } from 'react-native';
-import { X } from 'lucide-react-native';
+import { X, Upload, Camera, Image as ImageIcon } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { colors } from '@/constants/colors';
 import { useUserStore } from '@/store/user-store';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
@@ -26,9 +29,132 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
+  const [coverArt, setCoverArt] = useState<string | null>(null);
   const [nameError, setNameError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   
   const { createPlaylist } = useUserStore();
+  
+  // Request camera permissions
+  const requestCameraPermission = async () => {
+    if (Platform.OS !== 'web') {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Camera permission is required to take photos.',
+          [{ text: 'OK' }]
+        );
+        return false;
+      }
+    }
+    return true;
+  };
+  
+  // Request media library permissions
+  const requestMediaLibraryPermission = async () => {
+    if (Platform.OS !== 'web') {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Photo library permission is required to select images.',
+          [{ text: 'OK' }]
+        );
+        return false;
+      }
+    }
+    return true;
+  };
+  
+  // Handle image selection from gallery
+  const selectImageFromGallery = async () => {
+    const hasPermission = await requestMediaLibraryPermission();
+    if (!hasPermission) return;
+    
+    try {
+      setIsUploading(true);
+      
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      
+      if (!result.canceled && result.assets[0]) {
+        setCoverArt(result.assets[0].uri);
+        
+        // Track image selection
+        analyticsEventBus.publish('custom_event', {
+          category: 'playlist_creation',
+          action: 'cover_art_selected',
+          source: 'gallery',
+        });
+      }
+    } catch (error) {
+      console.error('Error selecting image:', error);
+      Alert.alert('Error', 'Failed to select image. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  // Handle image capture from camera
+  const captureImageFromCamera = async () => {
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) return;
+    
+    try {
+      setIsUploading(true);
+      
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      
+      if (!result.canceled && result.assets[0]) {
+        setCoverArt(result.assets[0].uri);
+        
+        // Track image capture
+        analyticsEventBus.publish('custom_event', {
+          category: 'playlist_creation',
+          action: 'cover_art_selected',
+          source: 'camera',
+        });
+      }
+    } catch (error) {
+      console.error('Error capturing image:', error);
+      Alert.alert('Error', 'Failed to capture image. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  // Show image selection options
+  const showImageOptions = () => {
+    Alert.alert(
+      'Select Cover Art',
+      'Choose how you want to add cover art for your playlist:',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Camera', onPress: captureImageFromCamera },
+        { text: 'Photo Library', onPress: selectImageFromGallery },
+      ]
+    );
+  };
+  
+  // Remove selected cover art
+  const removeCoverArt = () => {
+    setCoverArt(null);
+    
+    // Track cover art removal
+    analyticsEventBus.publish('custom_event', {
+      category: 'playlist_creation',
+      action: 'cover_art_removed',
+    });
+  };
   
   const handleCreatePlaylist = () => {
     // Validate name
@@ -46,8 +172,8 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
     }
     
     try {
-      // Create playlist
-      const playlistId = createPlaylist(name.trim(), description.trim(), isPrivate);
+      // Create playlist with cover art
+      const playlistId = createPlaylist(name.trim(), description.trim(), isPrivate, coverArt);
       
       // Track playlist creation
       analyticsEventBus.publish('playlist_create', {
@@ -55,12 +181,14 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
         playlist_name: name.trim(),
         is_private: isPrivate,
         has_description: description.trim().length > 0,
+        has_cover_art: !!coverArt,
       });
       
       // Reset form
       setName('');
       setDescription('');
       setIsPrivate(false);
+      setCoverArt(null);
       setNameError('');
       
       // Close modal
@@ -87,6 +215,7 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
     setName('');
     setDescription('');
     setIsPrivate(false);
+    setCoverArt(null);
     setNameError('');
     
     // Track cancel
@@ -119,6 +248,37 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
           </View>
           
           <ScrollView style={styles.form}>
+            {/* Cover Art Section */}
+            <Text style={styles.label}>Cover Art (optional)</Text>
+            <View style={styles.coverArtSection}>
+              {coverArt ? (
+                <View style={styles.coverArtContainer}>
+                  <Image source={{ uri: coverArt }} style={styles.coverArtImage} />
+                  <TouchableOpacity 
+                    style={styles.removeCoverArtButton}
+                    onPress={removeCoverArt}
+                  >
+                    <X size={16} color={colors.text} />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity 
+                  style={styles.uploadButton}
+                  onPress={showImageOptions}
+                  disabled={isUploading}
+                >
+                  {isUploading ? (
+                    <Text style={styles.uploadButtonText}>Uploading...</Text>
+                  ) : (
+                    <>
+                      <Upload size={24} color={colors.textSecondary} />
+                      <Text style={styles.uploadButtonText}>Add Cover Art</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              )}
+            </View>
+            
             <Text style={styles.label}>Name</Text>
             <TextInput
               style={[styles.input, nameError ? styles.inputError : null]}
@@ -184,7 +344,7 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
             <TouchableOpacity 
               style={[styles.createButton, !name.trim() ? styles.disabledButton : null]}
               onPress={handleCreatePlaylist}
-              disabled={!name.trim()}
+              disabled={!name.trim() || isUploading}
             >
               <Text style={styles.createButtonText}>Create</Text>
             </TouchableOpacity>
@@ -235,6 +395,47 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginBottom: 8,
   },
+  coverArtSection: {
+    marginBottom: 16,
+  },
+  coverArtContainer: {
+    position: 'relative',
+    alignSelf: 'flex-start',
+  },
+  coverArtImage: {
+    width: 120,
+    height: 120,
+    borderRadius: 8,
+    backgroundColor: colors.background,
+  },
+  removeCoverArtButton: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.error,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  uploadButton: {
+    width: 120,
+    height: 120,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+  },
+  uploadButtonText: {
+    color: colors.textSecondary,
+    fontSize: 12,
+    marginTop: 4,
+    textAlign: 'center',
+  },
   input: {
     backgroundColor: colors.background,
     borderRadius: 8,
@@ -245,12 +446,13 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   inputError: {
-    borderColor: 'red',
+    borderColor: colors.error,
   },
   errorText: {
-    color: 'red',
+    color: colors.error,
     marginTop: -12,
     marginBottom: 16,
+    fontSize: 14,
   },
   textArea: {
     minHeight: 100,

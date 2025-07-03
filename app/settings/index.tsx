@@ -34,7 +34,15 @@ import {
   Sun,
   Check,
   X,
-  AlertCircle
+  AlertCircle,
+  Settings,
+  Mail,
+  Eye,
+  Users,
+  Headphones,
+  Type,
+  FileText,
+  Info
 } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { useUserStore } from '@/store/user-store';
@@ -339,6 +347,102 @@ export default function SettingsScreen() {
     }
   };
   
+  // Handle change password
+  const handleChangePassword = () => {
+    router.push('/settings/change-password');
+  };
+  
+  // Handle email preferences
+  const handleEmailPreferences = () => {
+    router.push('/settings/email-preferences');
+  };
+  
+  // Handle blocked users
+  const handleBlockedUsers = () => {
+    router.push('/settings/blocked-users');
+  };
+  
+  // Handle audio quality
+  const handleAudioQuality = () => {
+    Alert.alert(
+      "Audio Quality",
+      "Choose your preferred audio quality:",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Low (96 kbps)", 
+          onPress: () => updatePlaybackSettings({ streamingQuality: 'low' })
+        },
+        { 
+          text: "Normal (128 kbps)", 
+          onPress: () => updatePlaybackSettings({ streamingQuality: 'normal' })
+        },
+        { 
+          text: "High (320 kbps)", 
+          onPress: () => updatePlaybackSettings({ streamingQuality: 'high' })
+        },
+        { 
+          text: "Ultra (Lossless)", 
+          onPress: () => updatePlaybackSettings({ streamingQuality: 'ultra' })
+        }
+      ]
+    );
+  };
+  
+  // Handle equalizer
+  const handleEqualizer = () => {
+    router.push('/settings/equalizer');
+  };
+  
+  // Handle storage location
+  const handleStorageLocation = () => {
+    Alert.alert(
+      "Storage Location",
+      "Choose where to store downloaded music:",
+      [
+        { text: "Cancel", style: "cancel" },
+        { 
+          text: "Internal Storage", 
+          onPress: () => updatePlaybackSettings({ downloadLocation: 'internal' })
+        },
+        { 
+          text: "External Storage", 
+          onPress: () => updatePlaybackSettings({ downloadLocation: 'external' })
+        }
+      ]
+    );
+  };
+  
+  // Handle text size
+  const handleTextSize = () => {
+    Alert.alert(
+      "Text Size",
+      "Choose your preferred text size:",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Small", onPress: () => console.log('Text size: Small') },
+        { text: "Medium", onPress: () => console.log('Text size: Medium') },
+        { text: "Large", onPress: () => console.log('Text size: Large') },
+        { text: "Extra Large", onPress: () => console.log('Text size: Extra Large') }
+      ]
+    );
+  };
+  
+  // Handle audience insights
+  const handleAudienceInsights = () => {
+    router.push('/analytics/audience');
+  };
+  
+  // Handle revenue reports
+  const handleRevenueReports = () => {
+    router.push('/analytics/revenue');
+  };
+  
+  // Handle email notifications
+  const handleEmailNotifications = () => {
+    router.push('/settings/email-notifications');
+  };
+  
   const handleLogout = () => {
     Alert.alert(
       "Logout",
@@ -446,7 +550,7 @@ export default function SettingsScreen() {
             style={styles.loginButton}
             onPress={() => router.push('/')}
           >
-            <Text style={styles.loginButtonText}>Login+</Text>
+            <Text style={styles.loginButtonText}>Login</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -529,35 +633,32 @@ export default function SettingsScreen() {
                 style={styles.settingItem}
                 onPress={() => router.push('/profile')}
               >
-                <Text style={styles.settingLabel}>Edit Profile</Text>
+                <View style={styles.settingLeft}>
+                  <Edit size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Edit Profile</Text>
+                </View>
                 <ChevronRight size={18} color={colors.textTertiary} />
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={styles.settingItem}
-                onPress={() => {
-                  Alert.alert(
-                    "Change Password",
-                    "This would open a password change form in a real app.",
-                    [{ text: "OK" }]
-                  );
-                }}
+                onPress={handleChangePassword}
               >
-                <Text style={styles.settingLabel}>Change Password</Text>
+                <View style={styles.settingLeft}>
+                  <Lock size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Change Password</Text>
+                </View>
                 <ChevronRight size={18} color={colors.textTertiary} />
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={styles.settingItem}
-                onPress={() => {
-                  Alert.alert(
-                    "Email Preferences",
-                    "This would open email settings in a real app.",
-                    [{ text: "OK" }]
-                  );
-                }}
+                onPress={handleEmailPreferences}
               >
-                <Text style={styles.settingLabel}>Email Preferences</Text>
+                <View style={styles.settingLeft}>
+                  <Mail size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Email Preferences</Text>
+                </View>
                 <ChevronRight size={18} color={colors.textTertiary} />
               </TouchableOpacity>
               
@@ -565,7 +666,10 @@ export default function SettingsScreen() {
                 style={styles.settingItem}
                 onPress={handleExportData}
               >
-                <Text style={styles.settingLabel}>Export Your Data</Text>
+                <View style={styles.settingLeft}>
+                  <Download size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Export Your Data</Text>
+                </View>
                 <ChevronRight size={18} color={colors.textTertiary} />
               </TouchableOpacity>
               
@@ -573,8 +677,11 @@ export default function SettingsScreen() {
                 style={[styles.settingItem, styles.dangerItem]}
                 onPress={handleDeleteAccount}
               >
-                <Text style={styles.dangerText}>Delete Account</Text>
-                <Trash2 size={18} color={colors.error} />
+                <View style={styles.settingLeft}>
+                  <Trash2 size={18} color={colors.error} />
+                  <Text style={styles.dangerText}>Delete Account</Text>
+                </View>
+                <ChevronRight size={18} color={colors.error} />
               </TouchableOpacity>
             </View>
           )}
@@ -611,7 +718,10 @@ export default function SettingsScreen() {
                   );
                 }}
               >
-                <Text style={styles.settingLabel}>Profile Visibility</Text>
+                <View style={styles.settingLeft}>
+                  <Eye size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Profile Visibility</Text>
+                </View>
                 <View style={styles.valueContainer}>
                   <Text style={styles.valueText}>
                     {privacySettings?.profileVisibility === 'public' ? 'Everyone' : 
@@ -622,7 +732,10 @@ export default function SettingsScreen() {
               </TouchableOpacity>
               
               <View style={styles.switchItem}>
-                <Text style={styles.settingLabel}>Show Listening Activity</Text>
+                <View style={styles.settingLeft}>
+                  <Volume2 size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Show Listening Activity</Text>
+                </View>
                 <Switch
                   value={privacySettings?.showListeningActivity || false}
                   onValueChange={(value) => {
@@ -658,7 +771,10 @@ export default function SettingsScreen() {
                   );
                 }}
               >
-                <Text style={styles.settingLabel}>Two-Factor Authentication</Text>
+                <View style={styles.settingLeft}>
+                  <Shield size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Two-Factor Authentication</Text>
+                </View>
                 <View style={styles.valueContainer}>
                   <Text style={styles.valueText}>
                     {is2FAEnabled ? 'Enabled' : 'Disabled'}
@@ -669,20 +785,20 @@ export default function SettingsScreen() {
               
               <TouchableOpacity 
                 style={styles.settingItem}
-                onPress={() => {
-                  Alert.alert(
-                    "Blocked Users",
-                    "This would show a list of blocked users in a real app.",
-                    [{ text: "OK" }]
-                  );
-                }}
+                onPress={handleBlockedUsers}
               >
-                <Text style={styles.settingLabel}>Blocked Users</Text>
+                <View style={styles.settingLeft}>
+                  <Users size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Blocked Users</Text>
+                </View>
                 <ChevronRight size={18} color={colors.textTertiary} />
               </TouchableOpacity>
               
               <View style={styles.switchItem}>
-                <Text style={styles.settingLabel}>Data Collection</Text>
+                <View style={styles.settingLeft}>
+                  <BarChart size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Data Collection</Text>
+                </View>
                 <Switch
                   value={privacySettings?.dataCollection || false}
                   onValueChange={(value) => {
@@ -728,17 +844,32 @@ export default function SettingsScreen() {
                 style={styles.settingItem}
                 onPress={() => router.push('/analytics')}
               >
-                <Text style={styles.settingLabel}>Track Performance</Text>
+                <View style={styles.settingLeft}>
+                  <BarChart size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Track Performance</Text>
+                </View>
                 <ChevronRight size={18} color={colors.textTertiary} />
               </TouchableOpacity>
               
-              <TouchableOpacity style={styles.settingItem}>
-                <Text style={styles.settingLabel}>Audience Insights</Text>
+              <TouchableOpacity 
+                style={styles.settingItem}
+                onPress={handleAudienceInsights}
+              >
+                <View style={styles.settingLeft}>
+                  <Users size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Audience Insights</Text>
+                </View>
                 <ChevronRight size={18} color={colors.textTertiary} />
               </TouchableOpacity>
               
-              <TouchableOpacity style={styles.settingItem}>
-                <Text style={styles.settingLabel}>Revenue Reports</Text>
+              <TouchableOpacity 
+                style={styles.settingItem}
+                onPress={handleRevenueReports}
+              >
+                <View style={styles.settingLeft}>
+                  <BarChart size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Revenue Reports</Text>
+                </View>
                 <ChevronRight size={18} color={colors.textTertiary} />
               </TouchableOpacity>
             </View>
@@ -754,7 +885,10 @@ export default function SettingsScreen() {
           
           <View style={styles.sectionContent}>
             <View style={styles.switchItem}>
-              <Text style={styles.settingLabel}>Push Notifications</Text>
+              <View style={styles.settingLeft}>
+                <Bell size={18} color={colors.textSecondary} />
+                <Text style={styles.settingLabel}>Push Notifications</Text>
+              </View>
               <Switch
                 value={notifications}
                 onValueChange={handleNotificationsToggle}
@@ -764,8 +898,14 @@ export default function SettingsScreen() {
               />
             </View>
             
-            <TouchableOpacity style={styles.settingItem}>
-              <Text style={styles.settingLabel}>Email Notifications</Text>
+            <TouchableOpacity 
+              style={styles.settingItem}
+              onPress={handleEmailNotifications}
+            >
+              <View style={styles.settingLeft}>
+                <Mail size={18} color={colors.textSecondary} />
+                <Text style={styles.settingLabel}>Email Notifications</Text>
+              </View>
               <ChevronRight size={18} color={colors.textTertiary} />
             </TouchableOpacity>
           </View>
@@ -788,7 +928,10 @@ export default function SettingsScreen() {
           {showPlaybackSettings && (
             <View style={styles.sectionContent}>
               <View style={styles.switchItem}>
-                <Text style={styles.settingLabel}>Autoplay</Text>
+                <View style={styles.settingLeft}>
+                  <Volume2 size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Autoplay</Text>
+                </View>
                 <Switch
                   value={autoplay}
                   onValueChange={handleAutoplayToggle}
@@ -798,11 +941,20 @@ export default function SettingsScreen() {
                 />
               </View>
               
-              <TouchableOpacity style={styles.settingItem}>
-                <Text style={styles.settingLabel}>Audio Quality</Text>
+              <TouchableOpacity 
+                style={styles.settingItem}
+                onPress={handleAudioQuality}
+              >
+                <View style={styles.settingLeft}>
+                  <Headphones size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Audio Quality</Text>
+                </View>
                 <View style={styles.valueContainer}>
                   <Text style={styles.valueText}>
-                    {playbackSettings?.streamingQuality || 'High'}
+                    {playbackSettings?.streamingQuality === 'low' ? 'Low' :
+                     playbackSettings?.streamingQuality === 'normal' ? 'Normal' :
+                     playbackSettings?.streamingQuality === 'high' ? 'High' :
+                     playbackSettings?.streamingQuality === 'ultra' ? 'Ultra' : 'High'}
                   </Text>
                   <ChevronRight size={18} color={colors.textTertiary} />
                 </View>
@@ -810,20 +962,20 @@ export default function SettingsScreen() {
               
               <TouchableOpacity 
                 style={styles.settingItem}
-                onPress={() => {
-                  Alert.alert(
-                    "Equalizer",
-                    "This would open the equalizer settings in a real app.",
-                    [{ text: "OK" }]
-                  );
-                }}
+                onPress={handleEqualizer}
               >
-                <Text style={styles.settingLabel}>Equalizer</Text>
+                <View style={styles.settingLeft}>
+                  <Settings size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Equalizer</Text>
+                </View>
                 <ChevronRight size={18} color={colors.textTertiary} />
               </TouchableOpacity>
               
               <View style={styles.switchItem}>
-                <Text style={styles.settingLabel}>Volume Normalization</Text>
+                <View style={styles.settingLeft}>
+                  <Volume2 size={18} color={colors.textSecondary} />
+                  <Text style={styles.settingLabel}>Volume Normalization</Text>
+                </View>
                 <Switch
                   value={playbackSettings?.volumeNormalization || false}
                   onValueChange={(value) => {
@@ -853,7 +1005,10 @@ export default function SettingsScreen() {
           
           <View style={styles.sectionContent}>
             <View style={styles.switchItem}>
-              <Text style={styles.settingLabel}>Download on Wi-Fi Only</Text>
+              <View style={styles.settingLeft}>
+                <Wifi size={18} color={colors.textSecondary} />
+                <Text style={styles.settingLabel}>Download on Wi-Fi Only</Text>
+              </View>
               <Switch
                 value={downloadOnWifi}
                 onValueChange={handleDownloadOnWifiToggle}
@@ -863,10 +1018,18 @@ export default function SettingsScreen() {
               />
             </View>
             
-            <TouchableOpacity style={styles.settingItem}>
-              <Text style={styles.settingLabel}>Storage Location</Text>
+            <TouchableOpacity 
+              style={styles.settingItem}
+              onPress={handleStorageLocation}
+            >
+              <View style={styles.settingLeft}>
+                <Download size={18} color={colors.textSecondary} />
+                <Text style={styles.settingLabel}>Storage Location</Text>
+              </View>
               <View style={styles.valueContainer}>
-                <Text style={styles.valueText}>Internal Storage</Text>
+                <Text style={styles.valueText}>
+                  {playbackSettings?.downloadLocation === 'external' ? 'External Storage' : 'Internal Storage'}
+                </Text>
                 <ChevronRight size={18} color={colors.textTertiary} />
               </View>
             </TouchableOpacity>
@@ -876,7 +1039,10 @@ export default function SettingsScreen() {
               onPress={handleClearCache}
               disabled={isSaving}
             >
-              <Text style={styles.settingLabel}>Clear Cache</Text>
+              <View style={styles.settingLeft}>
+                <Trash2 size={18} color={colors.textSecondary} />
+                <Text style={styles.settingLabel}>Clear Cache</Text>
+              </View>
               <View style={styles.valueContainer}>
                 <Text style={styles.valueText}>256 MB</Text>
                 <ChevronRight size={18} color={colors.textTertiary} />
@@ -898,7 +1064,14 @@ export default function SettingsScreen() {
           
           <View style={styles.sectionContent}>
             <View style={styles.switchItem}>
-              <Text style={styles.settingLabel}>Dark Mode</Text>
+              <View style={styles.settingLeft}>
+                {darkMode ? (
+                  <Moon size={18} color={colors.textSecondary} />
+                ) : (
+                  <Sun size={18} color={colors.textSecondary} />
+                )}
+                <Text style={styles.settingLabel}>Dark Mode</Text>
+              </View>
               <Switch
                 value={darkMode}
                 onValueChange={handleDarkModeToggle}
@@ -907,8 +1080,14 @@ export default function SettingsScreen() {
               />
             </View>
             
-            <TouchableOpacity style={styles.settingItem}>
-              <Text style={styles.settingLabel}>Text Size</Text>
+            <TouchableOpacity 
+              style={styles.settingItem}
+              onPress={handleTextSize}
+            >
+              <View style={styles.settingLeft}>
+                <Type size={18} color={colors.textSecondary} />
+                <Text style={styles.settingLabel}>Text Size</Text>
+              </View>
               <View style={styles.valueContainer}>
                 <Text style={styles.valueText}>Medium</Text>
                 <ChevronRight size={18} color={colors.textTertiary} />
@@ -919,7 +1098,7 @@ export default function SettingsScreen() {
           {/* About */}
           <View style={styles.sectionHeader}>
             <View style={styles.sectionHeaderLeft}>
-              <Globe size={20} color={colors.primary} />
+              <Info size={20} color={colors.primary} />
               <Text style={styles.sectionTitle}>About</Text>
             </View>
           </View>
@@ -935,7 +1114,10 @@ export default function SettingsScreen() {
                 );
               }}
             >
-              <Text style={styles.settingLabel}>Terms of Service</Text>
+              <View style={styles.settingLeft}>
+                <FileText size={18} color={colors.textSecondary} />
+                <Text style={styles.settingLabel}>Terms of Service</Text>
+              </View>
               <ChevronRight size={18} color={colors.textTertiary} />
             </TouchableOpacity>
             
@@ -949,12 +1131,18 @@ export default function SettingsScreen() {
                 );
               }}
             >
-              <Text style={styles.settingLabel}>Privacy Policy</Text>
+              <View style={styles.settingLeft}>
+                <Shield size={18} color={colors.textSecondary} />
+                <Text style={styles.settingLabel}>Privacy Policy</Text>
+              </View>
               <ChevronRight size={18} color={colors.textTertiary} />
             </TouchableOpacity>
             
             <View style={styles.settingItem}>
-              <Text style={styles.settingLabel}>Version</Text>
+              <View style={styles.settingLeft}>
+                <Info size={18} color={colors.textSecondary} />
+                <Text style={styles.settingLabel}>Version</Text>
+              </View>
               <Text style={styles.versionText}>1.0.0</Text>
             </View>
           </View>
@@ -1092,9 +1280,15 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  settingLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
   settingLabel: {
     color: colors.text,
     fontSize: 16,
+    marginLeft: 12,
   },
   switchItem: {
     flexDirection: 'row',
@@ -1124,6 +1318,7 @@ const styles = StyleSheet.create({
   dangerText: {
     color: colors.error,
     fontSize: 16,
+    marginLeft: 12,
   },
   logoutButton: {
     flexDirection: 'row',
@@ -1160,7 +1355,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   loginButton: {
-    backgroundColor: '#4169E1', // Royal blue
+    backgroundColor: '#4169E1',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 8,
