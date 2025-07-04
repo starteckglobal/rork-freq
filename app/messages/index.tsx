@@ -22,7 +22,7 @@ import {
 } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { users } from '@/mocks/users';
-import { freqLogo, defaultAvatarUri } from '@/constants/images';
+import { freqLogoUrl, defaultAvatarUri } from '@/constants/images';
 import { useUserStore } from '@/store/user-store';
 import LoginModal from '@/components/LoginModal';
 
@@ -207,7 +207,7 @@ export default function MessagesScreen() {
           title: 'Messages',
           headerLeft: () => (
             <Image 
-              source={freqLogo} 
+              source={{ uri: freqLogoUrl }} 
               style={styles.headerLogo}
               resizeMode="contain"
             />
@@ -244,7 +244,7 @@ export default function MessagesScreen() {
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.push('/')}>
             <Image 
-              source={freqLogo} 
+              source={{ uri: freqLogoUrl }} 
               style={styles.headerLogo}
               resizeMode="contain"
             />

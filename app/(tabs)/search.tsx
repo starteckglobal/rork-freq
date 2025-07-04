@@ -92,6 +92,8 @@ export default function SearchScreen() {
         query: searchQuery,
       });
     }
+    // Navigate to the user's profile
+    router.push(`/profile/${userId}`);
   };
   
   const handleClearSearch = () => {

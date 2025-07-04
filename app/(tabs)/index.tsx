@@ -10,7 +10,7 @@ import { featuredPlaylists } from '@/mocks/playlists';
 import { colors } from '@/constants/colors';
 import { usePlayerStore } from '@/store/player-store';
 import { useUserStore } from '@/store/user-store';
-import { freqLogo } from '@/constants/images';
+import { freqLogoUrl } from '@/constants/images';
 import { UserPlus, Upload } from 'lucide-react-native';
 import LoginModal from '@/components/LoginModal';
 import UploadTrackModal from '@/components/UploadTrackModal';
@@ -59,7 +59,7 @@ export default function HomeScreen() {
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.push('/')}>
             <Image 
-              source={freqLogo} 
+              source={{ uri: freqLogoUrl }} 
               style={styles.logo}
               resizeMode="contain"
             />
