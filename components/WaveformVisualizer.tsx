@@ -36,7 +36,7 @@ export default function WaveformVisualizer({
   onDragEnd,
   onHoverChange,
   color = colors.primary,
-  backgroundColor = colors.border
+  backgroundColor = 'rgba(255,255,255,0.3)'
 }: WaveformVisualizerProps) {
   const containerRef = useRef<View>(null);
   const [containerWidth, setContainerWidth] = useState(SCREEN_WIDTH - 32);
@@ -47,6 +47,11 @@ export default function WaveformVisualizer({
   // Animation for playback progress
   const progressAnim = useRef(new Animated.Value(0)).current;
   
+  // Animation values for each bar
+  const barAnimations = useRef(
+    waveformData.map(() => new Animated.Value(1))
+  ).current;
+  
   // Update progress animation when progress changes
   useEffect(() => {
     if (!isDragging) {
@@ -54,23 +59,60 @@ export default function WaveformVisualizer({
     }
   }, [progress, isDragging]);
   
-  // Start animation when playing
+  // Animate bars when playing
   useEffect(() => {
     if (isPlaying && !isDragging) {
-      Animated.timing(progressAnim, {
-        toValue: 1,
-        duration: (1 - progress) * 100000, // Approximate animation duration
-        useNativeDriver: false,
-      }).start();
+      // Create staggered animations for bars
+      const animations = barAnimations.map((anim, index) => {
+        return Animated.loop(
+          Animated.sequence([
+            Animated.timing(anim, {
+              toValue: 0.3 + Math.random() * 0.7,
+              duration: 200 + Math.random() * 300,
+              useNativeDriver: false,
+            }),
+            Animated.timing(anim, {
+              toValue: 0.5 + Math.random() * 0.5,
+              duration: 200 + Math.random() * 300,
+              useNativeDriver: false,
+            }),
+          ])
+        );
+      });
+      
+      // Start animations with slight delays
+      animations.forEach((animation, index) => {
+        setTimeout(() => {
+          animation.start();
+        }, index * 20);
+      });
+      
+      return () => {
+        animations.forEach(animation => animation.stop());
+      };
     } else {
-      // Fix: Stop animation with correct arguments
-      Animated.timing(progressAnim, {
-        toValue: progress,
-        duration: 0,
-        useNativeDriver: false,
-      }).stop();
+      // Reset all bars to their original values when not playing
+      barAnimations.forEach((anim, index) => {
+        anim.setValue(waveformData[index] || 0.5);
+      });
     }
-  }, [isPlaying, isDragging, progress]);
+  }, [isPlaying, isDragging, waveformData]);
+  
+  // Update bar animations when waveform data changes
+  useEffect(() => {
+    if (barAnimations.length !== waveformData.length) {
+      // Recreate animations if data length changed
+      barAnimations.splice(0);
+      waveformData.forEach(() => {
+        barAnimations.push(new Animated.Value(1));
+      });
+    }
+    
+    // Set initial values
+    barAnimations.forEach((anim, index) => {
+      anim.setValue(waveformData[index] || 0.5);
+    });
+  }, [waveformData]);
   
   // Handle container layout to get width
   const handleLayout = (event: any) => {
@@ -145,7 +187,7 @@ export default function WaveformVisualizer({
   } : undefined;
   
   // Calculate bar width based on container width and number of bars
-  const barWidth = Math.max(2, containerWidth / waveformData.length - 1);
+  const barWidth = Math.max(2, (containerWidth / waveformData.length) - 1);
   
   // Create dynamic props for Pressable
   const pressableProps: any = {
@@ -182,23 +224,24 @@ export default function WaveformVisualizer({
     <Pressable {...pressableProps}>
       <View style={styles.waveformContainer}>
         {waveformData.map((value, index) => {
-          const barHeight = value * 100;
           const barLeft = index * (barWidth + 1);
           
           // Determine if this bar is before or after the progress point
-          // Fix: Use state variable instead of getValue()
           const isBeforeProgress = barLeft / containerWidth < progressValue;
           
           // For hover effect (web only)
           const isBeforeHover = hoverPosition !== null && barLeft < hoverPosition;
           
           return (
-            <View
+            <Animated.View
               key={index}
               style={[
                 styles.bar,
                 {
-                  height: `${barHeight}%`,
+                  height: barAnimations[index]?.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: ['20%', '100%'],
+                  }) || `${value * 100}%`,
                   width: barWidth,
                   left: barLeft,
                   backgroundColor: isBeforeProgress 
@@ -244,7 +287,7 @@ export default function WaveformVisualizer({
 
 const styles = StyleSheet.create({
   container: {
-    height: 100,
+    height: 80,
     backgroundColor: 'transparent',
     position: 'relative',
     overflow: 'hidden',
@@ -252,15 +295,16 @@ const styles = StyleSheet.create({
   waveformContainer: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-end',
     position: 'relative',
+    paddingVertical: 8,
   },
   bar: {
     position: 'absolute',
-    bottom: 0,
+    bottom: 8,
     width: 2,
     borderRadius: 1,
-    backgroundColor: colors.border,
+    backgroundColor: 'rgba(255,255,255,0.3)',
   },
   progressIndicator: {
     position: 'absolute',

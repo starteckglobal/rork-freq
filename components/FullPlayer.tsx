@@ -17,16 +17,13 @@ import {
   Pause, 
   SkipBack, 
   SkipForward, 
-  Repeat, 
-  Shuffle, 
   Heart, 
   Share2, 
   MoreHorizontal, 
   ChevronDown, 
-  Volume2, 
-  Volume1, 
-  VolumeX,
-  ListPlus
+  Volume2,
+  RotateCcw,
+  RotateCw
 } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { usePlayerStore } from '@/store/player-store';
@@ -52,10 +49,6 @@ export default function FullPlayer() {
     duration, 
     playNext, 
     playPrevious, 
-    toggleRepeat, 
-    toggleShuffle, 
-    repeatMode, 
-    shuffleEnabled, 
     minimizePlayer,
     isMinimized,
     waveformData,
@@ -73,12 +66,7 @@ export default function FullPlayer() {
   });
   
   const [volume, setVolume] = useState(0.8);
-  const [isMuted, setIsMuted] = useState(false);
-  const [prevVolume, setPrevVolume] = useState(0.8);
-  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [showAddToPlaylist, setShowAddToPlaylist] = useState(false);
-  const [isDraggingWaveform, setIsDraggingWaveform] = useState(false);
-  const [waveformHover, setWaveformHover] = useState(false);
   
   // Animation for player appearance
   const [slideAnim] = useState(new Animated.Value(height));
@@ -200,11 +188,6 @@ export default function FullPlayer() {
   
   const handleVolumeChange = (value: number) => {
     setVolume(value);
-    if (value === 0) {
-      setIsMuted(true);
-    } else {
-      setIsMuted(false);
-    }
     
     // Track volume change
     analyticsEventBus.publish('custom_event', {
@@ -212,45 +195,7 @@ export default function FullPlayer() {
       action: 'volume_change',
       previous_volume: volume,
       new_volume: value,
-      is_muted: value === 0,
     });
-  };
-  
-  const toggleMute = () => {
-    trackInteraction('mute_toggle', { wasMuted: isMuted });
-    
-    if (isMuted) {
-      setVolume(prevVolume);
-      setIsMuted(false);
-      
-      // Track unmute
-      analyticsEventBus.publish('custom_event', {
-        category: 'player',
-        action: 'unmute',
-        restored_volume: prevVolume,
-      });
-    } else {
-      setPrevVolume(volume);
-      setVolume(0);
-      setIsMuted(true);
-      
-      // Track mute
-      analyticsEventBus.publish('custom_event', {
-        category: 'player',
-        action: 'mute',
-        previous_volume: volume,
-      });
-    }
-  };
-  
-  const getVolumeIcon = () => {
-    if (isMuted || volume === 0) {
-      return <VolumeX size={24} color={colors.text} />;
-    } else if (volume < 0.5) {
-      return <Volume1 size={24} color={colors.text} />;
-    } else {
-      return <Volume2 size={24} color={colors.text} />;
-    }
   };
   
   const handleAddToPlaylist = () => {
@@ -300,6 +245,56 @@ export default function FullPlayer() {
     minimizePlayer();
   };
   
+  const handleShare = () => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
+    
+    trackInteraction('share');
+    
+    // Track share
+    analyticsEventBus.publish('track_share', {
+      track_id: currentTrack?.id || '',
+      track_title: currentTrack?.title || '',
+      share_method: 'native_share',
+      source: 'full_player',
+    });
+    
+    // Share functionality would go here
+    alert('Share functionality would be implemented here');
+  };
+  
+  const handleRewind = () => {
+    const newTime = Math.max(0, currentTime - 10);
+    seekTo(newTime);
+    
+    trackInteraction('rewind_10s');
+    
+    analyticsEventBus.publish('track_seek', {
+      track_id: currentTrack?.id,
+      track_title: currentTrack?.title,
+      from_time: currentTime,
+      to_time: newTime,
+      method: 'rewind_button',
+    });
+  };
+  
+  const handleFastForward = () => {
+    const newTime = Math.min(duration, currentTime + 30);
+    seekTo(newTime);
+    
+    trackInteraction('fast_forward_30s');
+    
+    analyticsEventBus.publish('track_seek', {
+      track_id: currentTrack?.id,
+      track_title: currentTrack?.title,
+      from_time: currentTime,
+      to_time: newTime,
+      method: 'fast_forward_button',
+    });
+  };
+  
   if (!currentTrack || isMinimized) return null;
   
   return (
@@ -321,60 +316,74 @@ export default function FullPlayer() {
         )}
         
         <LinearGradient
-          colors={['rgba(0,0,0,0.7)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.7)']}
+          colors={['rgba(0,0,0,0.8)', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)']}
           style={styles.overlay}
         />
         
+        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity 
-            style={styles.minimizeButton}
+            style={styles.headerButton}
             onPress={handleMinimize}
           >
             <ChevronDown size={24} color={colors.text} />
           </TouchableOpacity>
+          
+          <Text style={styles.headerTitle}>Now Playing</Text>
+          
+          <TouchableOpacity 
+            style={styles.headerButton}
+            onPress={() => {
+              trackInteraction('more_options');
+              
+              // Track more options
+              analyticsEventBus.publish('custom_event', {
+                category: 'ui_interaction',
+                action: 'more_options',
+                track_id: currentTrack.id,
+                source: 'full_player',
+              });
+              
+              // More options
+              alert('More options would be implemented here');
+            }}
+          >
+            <MoreHorizontal size={24} color={colors.text} />
+          </TouchableOpacity>
         </View>
         
+        {/* Main Content */}
         <View style={styles.content}>
-          <View style={styles.coverArtContainer}>
+          {/* Album Art */}
+          <View style={styles.albumArtContainer}>
             <Image 
               source={{ uri: currentTrack.coverArt || defaultCoverArt }}
-              style={styles.coverArt}
+              style={styles.albumArt}
               resizeMode="cover"
-            />
-            <LinearGradient
-              colors={['rgba(0,0,0,0)', 'rgba(0,0,0,0.1)', 'rgba(0,0,0,0.3)']}
-              style={styles.coverArtOverlay}
             />
           </View>
           
+          {/* Track Info */}
           <View style={styles.trackInfo}>
             <Text style={styles.trackTitle}>{currentTrack.title}</Text>
             <Text style={styles.artistName}>{currentTrack.artist}</Text>
           </View>
           
+          {/* Waveform */}
           <View style={styles.waveformContainer}>
             <WaveformVisualizer 
               waveformData={waveformData}
-              isPlaying={isPlaying && !isDraggingWaveform}
+              isPlaying={isPlaying}
               progress={currentTime / duration}
               onSeek={handleWaveformSeek}
               style={styles.waveform}
               interactive={true}
-              onDragStart={() => {
-                setIsDraggingWaveform(true);
-                trackInteraction('waveform_drag_start');
-              }}
-              onDragEnd={() => {
-                setIsDraggingWaveform(false);
-                trackInteraction('waveform_drag_end');
-              }}
-              onHoverChange={(hovering) => {
-                setWaveformHover(hovering);
-                trackInteraction(hovering ? 'waveform_hover_start' : 'waveform_hover_end');
-              }}
+              color={colors.primary}
+              backgroundColor="rgba(255,255,255,0.3)"
             />
           </View>
           
+          {/* Progress Bar */}
           <View style={styles.progressContainer}>
             <Text style={styles.timeText}>{formatTime(currentTime)}</Text>
             <Slider
@@ -400,23 +409,22 @@ export default function FullPlayer() {
               }}
               style={styles.progressSlider}
               minimumTrackTintColor={colors.primary}
-              maximumTrackTintColor={colors.border}
+              maximumTrackTintColor="rgba(255,255,255,0.3)"
               thumbTintColor={colors.primary}
             />
             <Text style={styles.timeText}>{formatTime(duration)}</Text>
           </View>
           
-          <View style={styles.controls}>
+          {/* Main Controls */}
+          <View style={styles.mainControls}>
             <TouchableOpacity 
               style={styles.controlButton}
-              onPress={() => {
-                trackInteraction('shuffle_toggle', { wasEnabled: shuffleEnabled });
-                toggleShuffle();
-              }}
+              onPress={handleToggleLike}
             >
-              <Shuffle 
-                size={24} 
-                color={shuffleEnabled ? colors.primary : colors.textSecondary} 
+              <Heart 
+                size={28} 
+                color={isLiked ? colors.primary : colors.text}
+                fill={isLiked ? colors.primary : 'transparent'}
               />
             </TouchableOpacity>
             
@@ -438,9 +446,9 @@ export default function FullPlayer() {
               }}
             >
               {isPlaying ? (
-                <Pause size={32} color={colors.text} />
+                <Pause size={28} color={colors.text} />
               ) : (
-                <Play size={32} color={colors.text} fill={colors.text} />
+                <Play size={28} color={colors.text} fill={colors.text} />
               )}
             </TouchableOpacity>
             
@@ -456,108 +464,42 @@ export default function FullPlayer() {
             
             <TouchableOpacity 
               style={styles.controlButton}
-              onPress={() => {
-                trackInteraction('repeat_toggle', { previousMode: repeatMode });
-                toggleRepeat();
-              }}
+              onPress={handleShare}
             >
-              <Repeat 
-                size={24} 
-                color={repeatMode !== 'off' ? colors.primary : colors.textSecondary} 
-              />
+              <Share2 size={28} color={colors.text} />
             </TouchableOpacity>
           </View>
           
-          <View style={styles.additionalControls}>
+          {/* Bottom Controls */}
+          <View style={styles.bottomControls}>
             <TouchableOpacity 
-              style={styles.additionalButton}
-              onPress={handleToggleLike}
+              style={styles.bottomControlButton}
+              onPress={handleRewind}
             >
-              <Heart 
-                size={24} 
-                color={isLiked ? colors.primary : colors.textSecondary}
-                fill={isLiked ? colors.primary : 'transparent'}
-              />
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.additionalButton}
-              onPress={handleAddToPlaylist}
-            >
-              <ListPlus size={24} color={colors.textSecondary} />
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.additionalButton}
-              onPress={() => {
-                if (!isLoggedIn) {
-                  setShowLoginModal(true);
-                  return;
-                }
-                
-                trackInteraction('share');
-                
-                // Track share
-                analyticsEventBus.publish('track_share', {
-                  track_id: currentTrack.id,
-                  track_title: currentTrack.title,
-                  share_method: 'native_share',
-                  source: 'full_player',
-                });
-                
-                // Share functionality would go here
-                alert('Share functionality would be implemented here');
-              }}
-            >
-              <Share2 size={24} color={colors.textSecondary} />
+              <RotateCcw size={20} color={colors.text} />
+              <Text style={styles.bottomControlText}>10</Text>
             </TouchableOpacity>
             
             <View style={styles.volumeContainer}>
-              <TouchableOpacity 
-                style={styles.additionalButton}
-                onPress={toggleMute}
-                onLongPress={() => {
-                  setShowVolumeSlider(!showVolumeSlider);
-                  trackInteraction('volume_slider_toggle', { 
-                    wasVisible: showVolumeSlider 
-                  });
-                }}
-              >
-                {getVolumeIcon()}
-              </TouchableOpacity>
-              
-              {showVolumeSlider && (
-                <Slider
-                  value={volume}
-                  minimumValue={0}
-                  maximumValue={1}
-                  onValueChange={handleVolumeChange}
-                  style={styles.volumeSlider}
-                  minimumTrackTintColor={colors.primary}
-                  maximumTrackTintColor={colors.border}
-                  thumbTintColor={colors.primary}
-                />
-              )}
+              <Volume2 size={20} color={colors.text} />
+              <Slider
+                value={volume}
+                minimumValue={0}
+                maximumValue={1}
+                onValueChange={handleVolumeChange}
+                style={styles.volumeSlider}
+                minimumTrackTintColor={colors.primary}
+                maximumTrackTintColor="rgba(255,255,255,0.3)"
+                thumbTintColor={colors.primary}
+              />
             </View>
             
             <TouchableOpacity 
-              style={styles.additionalButton}
-              onPress={() => {
-                trackInteraction('more_options');
-                
-                // Track more options
-                analyticsEventBus.publish('custom_event', {
-                  category: 'ui_interaction',
-                  action: 'more_options',
-                  track_id: currentTrack.id,
-                  source: 'full_player',
-                });
-                
-                // More options
-                alert('More options would be implemented here');
-              }}
+              style={styles.bottomControlButton}
+              onPress={handleFastForward}
             >
-              <MoreHorizontal size={24} color={colors.textSecondary} />
+              <RotateCw size={20} color={colors.text} />
+              <Text style={styles.bottomControlText}>30</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -619,143 +561,155 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    paddingBottom: 20,
+  },
+  headerButton: {
+    width: 44,
+    height: 44,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingTop: Platform.OS === 'ios' ? 50 : 30,
-    marginBottom: 20,
   },
-  minimizeButton: {
-    padding: 8,
-    position: 'absolute',
-    left: 16,
-    zIndex: 10,
+  headerTitle: {
+    color: colors.text,
+    fontSize: 18,
+    fontWeight: '600',
   },
   content: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingBottom: Platform.OS === 'ios' ? 30 : 20,
+    paddingHorizontal: 32,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 30,
   },
-  coverArtContainer: {
-    position: 'relative',
-    width: width * 0.7,
-    height: width * 0.7,
-    maxWidth: 300,
-    maxHeight: 300,
-    marginBottom: 24,
-    borderRadius: 12,
+  albumArtContainer: {
+    width: width * 0.75,
+    height: width * 0.75,
+    maxWidth: 320,
+    maxHeight: 320,
+    marginBottom: 32,
+    borderRadius: 16,
     overflow: 'hidden',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
+    elevation: 12,
   },
-  coverArt: {
+  albumArt: {
     width: '100%',
     height: '100%',
-    borderRadius: 12,
     backgroundColor: colors.cardElevated,
-  },
-  coverArtOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: '50%',
-    borderBottomLeftRadius: 12,
-    borderBottomRightRadius: 12,
   },
   trackInfo: {
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
     width: '100%',
   },
   trackTitle: {
     color: colors.text,
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: '700',
     marginBottom: 8,
     textAlign: 'center',
   },
   artistName: {
-    color: colors.textSecondary,
+    color: 'rgba(255,255,255,0.7)',
     fontSize: 18,
     textAlign: 'center',
   },
   waveformContainer: {
     width: '100%',
     height: 80,
-    marginBottom: 16,
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    marginBottom: 24,
     borderRadius: 8,
     overflow: 'hidden',
-    padding: 10,
   },
   waveform: {
     width: '100%',
-    height: 60,
+    height: 80,
   },
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    marginBottom: 24,
+    marginBottom: 32,
   },
   progressSlider: {
     flex: 1,
     height: 40,
-    marginHorizontal: 8,
+    marginHorizontal: 16,
   },
   timeText: {
-    color: colors.textSecondary,
-    fontSize: 12,
+    color: 'rgba(255,255,255,0.7)',
+    fontSize: 14,
+    fontWeight: '500',
     minWidth: 40,
     textAlign: 'center',
   },
-  controls: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    marginBottom: 24,
-  },
-  controlButton: {
-    padding: 12,
-  },
-  playButton: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: colors.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginHorizontal: 16,
-    shadowColor: colors.primary,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  additionalControls: {
+  mainControls: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     width: '100%',
-    paddingHorizontal: 16,
+    paddingHorizontal: 20,
+    marginBottom: 40,
   },
-  additionalButton: {
-    padding: 12,
+  controlButton: {
+    width: 48,
+    height: 48,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playButton: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.6,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  bottomControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 20,
+  },
+  bottomControlButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 60,
+    height: 40,
+    position: 'relative',
+  },
+  bottomControlText: {
+    position: 'absolute',
+    bottom: -2,
+    right: 8,
+    color: colors.text,
+    fontSize: 10,
+    fontWeight: '600',
   },
   volumeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    marginHorizontal: 20,
   },
   volumeSlider: {
-    width: 100,
+    flex: 1,
     height: 40,
+    marginLeft: 12,
   },
 });
