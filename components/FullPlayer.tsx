@@ -307,16 +307,16 @@ export default function FullPlayer() {
       <ImageBackground
         source={{ uri: currentTrack.coverArt || defaultCoverArt }}
         style={styles.backgroundImage}
-        blurRadius={Platform.OS === 'web' ? 50 : 20}
+        blurRadius={Platform.OS === 'web' ? 30 : 15}
       >
         {Platform.OS !== 'web' ? (
-          <BlurView intensity={80} style={styles.blurBackground} tint="dark" />
+          <BlurView intensity={60} style={styles.blurBackground} tint="dark" />
         ) : (
           <View style={styles.webBackground} />
         )}
         
         <LinearGradient
-          colors={['rgba(0,0,0,0.8)', 'rgba(0,0,0,0.6)', 'rgba(0,0,0,0.9)']}
+          colors={['rgba(0,0,0,0.3)', 'rgba(0,0,0,0.5)', 'rgba(0,0,0,0.7)']}
           style={styles.overlay}
         />
         
@@ -326,7 +326,7 @@ export default function FullPlayer() {
             style={styles.headerButton}
             onPress={handleMinimize}
           >
-            <ChevronDown size={24} color={colors.text} />
+            <ChevronDown size={24} color="rgba(255,255,255,0.9)" />
           </TouchableOpacity>
           
           <Text style={styles.headerTitle}>Now Playing</Text>
@@ -348,7 +348,7 @@ export default function FullPlayer() {
               alert('More options would be implemented here');
             }}
           >
-            <MoreHorizontal size={24} color={colors.text} />
+            <MoreHorizontal size={24} color="rgba(255,255,255,0.9)" />
           </TouchableOpacity>
         </View>
         
@@ -361,6 +361,7 @@ export default function FullPlayer() {
               style={styles.albumArt}
               resizeMode="cover"
             />
+            <View style={styles.albumArtOverlay} />
           </View>
           
           {/* Track Info */}
@@ -378,8 +379,8 @@ export default function FullPlayer() {
               onSeek={handleWaveformSeek}
               style={styles.waveform}
               interactive={true}
-              color={colors.primary}
-              backgroundColor="rgba(255,255,255,0.3)"
+              color="rgba(255,255,255,0.8)"
+              backgroundColor="rgba(255,255,255,0.2)"
             />
           </View>
           
@@ -408,9 +409,9 @@ export default function FullPlayer() {
                 seekTo(value);
               }}
               style={styles.progressSlider}
-              minimumTrackTintColor={colors.primary}
+              minimumTrackTintColor="rgba(255,255,255,0.8)"
               maximumTrackTintColor="rgba(255,255,255,0.3)"
-              thumbTintColor={colors.primary}
+              thumbTintColor="rgba(255,255,255,0.9)"
             />
             <Text style={styles.timeText}>{formatTime(duration)}</Text>
           </View>
@@ -423,7 +424,7 @@ export default function FullPlayer() {
             >
               <Heart 
                 size={28} 
-                color={isLiked ? colors.primary : colors.text}
+                color={isLiked ? colors.primary : "rgba(255,255,255,0.8)"}
                 fill={isLiked ? colors.primary : 'transparent'}
               />
             </TouchableOpacity>
@@ -435,7 +436,7 @@ export default function FullPlayer() {
                 playPrevious();
               }}
             >
-              <SkipBack size={32} color={colors.text} />
+              <SkipBack size={32} color="rgba(255,255,255,0.8)" />
             </TouchableOpacity>
             
             <TouchableOpacity 
@@ -446,9 +447,9 @@ export default function FullPlayer() {
               }}
             >
               {isPlaying ? (
-                <Pause size={28} color={colors.text} />
+                <Pause size={28} color="rgba(0,0,0,0.9)" />
               ) : (
-                <Play size={28} color={colors.text} fill={colors.text} />
+                <Play size={28} color="rgba(0,0,0,0.9)" fill="rgba(0,0,0,0.9)" />
               )}
             </TouchableOpacity>
             
@@ -459,14 +460,14 @@ export default function FullPlayer() {
                 playNext();
               }}
             >
-              <SkipForward size={32} color={colors.text} />
+              <SkipForward size={32} color="rgba(255,255,255,0.8)" />
             </TouchableOpacity>
             
             <TouchableOpacity 
               style={styles.controlButton}
               onPress={handleShare}
             >
-              <Share2 size={28} color={colors.text} />
+              <Share2 size={28} color="rgba(255,255,255,0.8)" />
             </TouchableOpacity>
           </View>
           
@@ -476,21 +477,21 @@ export default function FullPlayer() {
               style={styles.bottomControlButton}
               onPress={handleRewind}
             >
-              <RotateCcw size={20} color={colors.text} />
+              <RotateCcw size={20} color="rgba(255,255,255,0.7)" />
               <Text style={styles.bottomControlText}>10</Text>
             </TouchableOpacity>
             
             <View style={styles.volumeContainer}>
-              <Volume2 size={20} color={colors.text} />
+              <Volume2 size={20} color="rgba(255,255,255,0.7)" />
               <Slider
                 value={volume}
                 minimumValue={0}
                 maximumValue={1}
                 onValueChange={handleVolumeChange}
                 style={styles.volumeSlider}
-                minimumTrackTintColor={colors.primary}
+                minimumTrackTintColor="rgba(255,255,255,0.8)"
                 maximumTrackTintColor="rgba(255,255,255,0.3)"
-                thumbTintColor={colors.primary}
+                thumbTintColor="rgba(255,255,255,0.9)"
               />
             </View>
             
@@ -498,7 +499,7 @@ export default function FullPlayer() {
               style={styles.bottomControlButton}
               onPress={handleFastForward}
             >
-              <RotateCw size={20} color={colors.text} />
+              <RotateCw size={20} color="rgba(255,255,255,0.7)" />
               <Text style={styles.bottomControlText}>30</Text>
             </TouchableOpacity>
           </View>
@@ -549,7 +550,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backdropFilter: 'blur(20px)',
   },
   backgroundImage: {
     flex: 1,
@@ -572,9 +574,11 @@ const styles = StyleSheet.create({
     height: 44,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 22,
   },
   headerTitle: {
-    color: colors.text,
+    color: 'rgba(255,255,255,0.9)',
     fontSize: 18,
     fontWeight: '600',
   },
@@ -598,11 +602,21 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 16,
     elevation: 12,
+    position: 'relative',
   },
   albumArt: {
     width: '100%',
     height: '100%',
     backgroundColor: colors.cardElevated,
+  },
+  albumArtOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 16,
   },
   trackInfo: {
     alignItems: 'center',
@@ -610,16 +624,22 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   trackTitle: {
-    color: colors.text,
+    color: 'rgba(255,255,255,0.95)',
     fontSize: 28,
     fontWeight: '700',
     marginBottom: 8,
     textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   artistName: {
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(255,255,255,0.8)',
     fontSize: 18,
     textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   waveformContainer: {
     width: '100%',
@@ -627,6 +647,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     borderRadius: 8,
     overflow: 'hidden',
+    backgroundColor: 'rgba(255,255,255,0.1)',
   },
   waveform: {
     width: '100%',
@@ -645,11 +666,14 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   timeText: {
-    color: 'rgba(255,255,255,0.7)',
+    color: 'rgba(255,255,255,0.8)',
     fontSize: 14,
     fontWeight: '500',
     minWidth: 40,
     textAlign: 'center',
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   mainControls: {
     flexDirection: 'row',
@@ -664,17 +688,19 @@ const styles = StyleSheet.create({
     height: 48,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 24,
   },
   playButton: {
     width: 72,
     height: 72,
     borderRadius: 36,
-    backgroundColor: colors.primary,
+    backgroundColor: 'rgba(255,255,255,0.9)',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: colors.primary,
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.6,
+    shadowOpacity: 0.3,
     shadowRadius: 12,
     elevation: 8,
   },
@@ -692,12 +718,14 @@ const styles = StyleSheet.create({
     width: 60,
     height: 40,
     position: 'relative',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 20,
   },
   bottomControlText: {
     position: 'absolute',
     bottom: -2,
     right: 8,
-    color: colors.text,
+    color: 'rgba(255,255,255,0.8)',
     fontSize: 10,
     fontWeight: '600',
   },
@@ -706,6 +734,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     marginHorizontal: 20,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: 20,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
   },
   volumeSlider: {
     flex: 1,

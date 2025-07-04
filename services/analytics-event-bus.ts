@@ -19,6 +19,7 @@ export type AnalyticsEventType =
   | 'track_seek'
   | 'track_skip'
   | 'track_share'
+  | 'track_uploaded'
   | 'playlist_create'
   | 'playlist_update'
   | 'playlist_like'
