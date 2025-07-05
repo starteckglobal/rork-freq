@@ -15,6 +15,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-06-15',
     description: 'A chill electronic track perfect for summer days.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '2',
@@ -30,6 +31,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-08-22',
     description: 'Synthwave track inspired by late night drives through the city.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '3',
@@ -45,6 +47,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-04-10',
     description: 'Hard-hitting beats with urban atmosphere.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: true,
   },
   {
     id: '4',
@@ -60,6 +63,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-07-05',
     description: 'Relaxing ambient sounds inspired by the ocean.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '5',
@@ -75,6 +79,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-09-18',
     description: 'Futuristic electronic track with dreamy synths.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '6',
@@ -90,6 +95,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-03-12',
     description: 'Peaceful ambient track inspired by mountain landscapes.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '7',
@@ -105,6 +111,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-05-30',
     description: 'Energetic electronic track inspired by city nightlife.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '8',
@@ -120,6 +127,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-02-15',
     description: 'Mystical track with middle eastern influences.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '9',
@@ -135,6 +143,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-10-12',
     description: 'Vibrant electronic track with neon-inspired synths.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '10',
@@ -150,6 +159,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-11-05',
     description: 'Dreamy pop ballad with ethereal vocals.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '11',
@@ -165,6 +175,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-09-28',
     description: 'Smooth hip hop track with midnight vibes.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: true,
   },
   {
     id: '12',
@@ -180,6 +191,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-08-14',
     description: 'Peaceful ambient track inspired by Japanese gardens.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '13',
@@ -195,6 +207,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-12-01',
     description: 'High-energy electronic track with pulsing beats.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '14',
@@ -210,6 +223,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-07-22',
     description: 'Indie folk song with romantic undertones.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '15',
@@ -225,6 +239,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-06-18',
     description: 'Storytelling rap about city life and urban culture.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: true,
   },
   {
     id: '16',
@@ -240,6 +255,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-05-10',
     description: 'Meditative ambient soundscape for relaxation.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '17',
@@ -255,6 +271,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-04-25',
     description: 'Futuristic synthwave with cyberpunk aesthetics.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '18',
@@ -270,6 +287,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-03-08',
     description: 'Smooth R&B track with soulful vocals.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   },
   {
     id: '19',
@@ -285,6 +303,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-02-14',
     description: 'Orchestral hip hop fusion with street narratives.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: true,
   },
   {
     id: '20',
@@ -300,6 +319,7 @@ export const tracks: Track[] = [
     releaseDate: '2023-01-30',
     description: 'Atmospheric ambient track inspired by mountain landscapes.',
     waveformData: Array.from({ length: 100 }, () => Math.random()),
+    isExplicit: false,
   }
 ];
 
