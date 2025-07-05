@@ -475,8 +475,8 @@ export const useUserStore = create<UserState>()(
         
         const newPlaylist: Playlist = {
           id: generateId(),
-          name,
-          description,
+          name: name.trim(),
+          description: description.trim(),
           coverArt: coverArt || undefined,
           tracks: [],
           createdBy: currentUser.id,
@@ -487,13 +487,26 @@ export const useUserStore = create<UserState>()(
         };
         
         const updatedPlaylists = [...userPlaylists, newPlaylist];
-        set({ userPlaylists: updatedPlaylists });
+        
+        // Update user stats
+        const updatedUser = {
+          ...currentUser,
+          stats: {
+            ...currentUser.stats,
+            totalPlaylists: currentUser.stats.totalPlaylists + 1
+          }
+        };
+        
+        set({ 
+          userPlaylists: updatedPlaylists,
+          currentUser: updatedUser
+        });
         
         // Track playlist creation
         analyticsEventBus.publish('playlist_create', {
           user_id: currentUser.id,
           playlist_id: newPlaylist.id,
-          playlist_name: name,
+          playlist_name: name.trim(),
           is_private: isPrivate,
           has_cover_art: !!coverArt,
         });
@@ -538,7 +551,20 @@ export const useUserStore = create<UserState>()(
         if (playlist.createdBy !== currentUser.id) return;
         
         const updatedPlaylists = userPlaylists.filter(p => p.id !== playlistId);
-        set({ userPlaylists: updatedPlaylists });
+        
+        // Update user stats
+        const updatedUser = {
+          ...currentUser,
+          stats: {
+            ...currentUser.stats,
+            totalPlaylists: Math.max(0, currentUser.stats.totalPlaylists - 1)
+          }
+        };
+        
+        set({ 
+          userPlaylists: updatedPlaylists,
+          currentUser: updatedUser
+        });
         
         // Track playlist deletion
         analyticsEventBus.publish('custom_event', {
@@ -601,7 +627,9 @@ export const useUserStore = create<UserState>()(
         set({ userPlaylists: updatedPlaylists });
         
         // Track remove from playlist
-        analyticsEventBus.publish('track_remove_from_playlist', {
+        analyticsEventBus.publish('custom_event', {
+          category: 'playlist',
+          action: 'track_removed',
           user_id: currentUser.id,
           track_id: trackId,
           playlist_id: playlistId,

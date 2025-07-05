@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, StyleSheet, Platform, Dimensions } from 'react-native';
+import { View, StyleSheet, Platform, Dimensions, SafeAreaView } from 'react-native';
 import { Tabs } from 'expo-router';
 import { 
   Home, 
@@ -15,6 +15,7 @@ import { usePlayerStore } from '@/store/player-store';
 import MiniPlayer from '@/components/MiniPlayer';
 import FullPlayer from '@/components/FullPlayer';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width, height } = Dimensions.get('window');
 
@@ -22,6 +23,7 @@ export default function TabLayout() {
   const { isLoggedIn } = useUserStore();
   const { currentTrack, isMinimized } = usePlayerStore();
   const analytics = useAnalytics();
+  const insets = useSafeAreaInsets();
 
   // Track tab navigation
   useEffect(() => {
@@ -31,14 +33,41 @@ export default function TabLayout() {
     });
   }, [isLoggedIn]);
 
-  // Calculate bottom padding for tab bar based on player visibility
+  // Calculate tab bar height based on platform and safe area
+  const getTabBarHeight = () => {
+    if (Platform.OS === 'ios') {
+      return 80 + insets.bottom;
+    } else if (Platform.OS === 'android') {
+      return 70;
+    } else {
+      return 60; // web
+    }
+  };
+
+  // Calculate mini player height
+  const getMiniPlayerHeight = () => {
+    return Platform.OS === 'web' ? 60 : 70;
+  };
+
+  // Calculate bottom padding for content based on player and tab bar
+  const getContentPaddingBottom = () => {
+    const tabBarHeight = getTabBarHeight();
+    const miniPlayerHeight = getMiniPlayerHeight();
+    
+    if (currentTrack && isMinimized) {
+      return tabBarHeight + miniPlayerHeight + 10; // Extra padding for spacing
+    } else {
+      return tabBarHeight + 10;
+    }
+  };
+
   const tabBarStyle = {
     backgroundColor: colors.card,
     borderTopColor: colors.border,
-    height: Platform.OS === 'ios' ? 80 : 60,
-    paddingBottom: Platform.OS === 'ios' ? 20 : 10,
+    height: getTabBarHeight(),
+    paddingBottom: Platform.OS === 'ios' ? insets.bottom + 10 : 10,
     paddingTop: 10,
-    position: 'absolute',
+    position: 'absolute' as const,
     bottom: 0,
     left: 0,
     right: 0,
@@ -78,6 +107,11 @@ export default function TabLayout() {
           headerTintColor: colors.text,
           headerTitleStyle: {
             fontWeight: '600',
+          },
+          // Add content style to ensure proper spacing
+          sceneStyle: {
+            backgroundColor: colors.background,
+            paddingBottom: getContentPaddingBottom(),
           },
         }}
       >
@@ -134,8 +168,12 @@ export default function TabLayout() {
       </Tabs>
       
       {/* Player components */}
-      {currentTrack && <MiniPlayer />}
-      {currentTrack && <FullPlayer />}
+      {currentTrack && isMinimized && (
+        <View style={[styles.miniPlayerContainer, { bottom: getTabBarHeight() }]}>
+          <MiniPlayer />
+        </View>
+      )}
+      {currentTrack && !isMinimized && <FullPlayer />}
     </View>
   );
 }
@@ -144,5 +182,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
+    backgroundColor: colors.background,
+  },
+  miniPlayerContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 100,
   },
 });

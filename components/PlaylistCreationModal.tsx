@@ -11,13 +11,16 @@ import {
   KeyboardAvoidingView,
   ScrollView,
   Image,
-  Alert
+  Alert,
+  Dimensions
 } from 'react-native';
 import { X, Upload, Camera, Image as ImageIcon } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { colors } from '@/constants/colors';
 import { useUserStore } from '@/store/user-store';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
+
+const { width, height } = Dimensions.get('window');
 
 export interface PlaylistCreationModalProps {
   visible: boolean;
@@ -32,6 +35,7 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
   const [coverArt, setCoverArt] = useState<string | null>(null);
   const [nameError, setNameError] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   
   const { createPlaylist } = useUserStore();
   
@@ -156,9 +160,10 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
     });
   };
   
-  const handleCreatePlaylist = () => {
+  const handleCreatePlaylist = async () => {
     // Validate name
-    if (!name.trim()) {
+    const trimmedName = name.trim();
+    if (!trimmedName) {
       setNameError('Playlist name is required');
       
       // Track validation error
@@ -171,9 +176,21 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
       return;
     }
     
+    if (trimmedName.length < 2) {
+      setNameError('Playlist name must be at least 2 characters');
+      return;
+    }
+    
+    if (trimmedName.length > 50) {
+      setNameError('Playlist name must be less than 50 characters');
+      return;
+    }
+    
     try {
+      setIsCreating(true);
+      
       // Create playlist with cover art
-      const playlistId = createPlaylist(name.trim(), description.trim(), isPrivate, coverArt);
+      const playlistId = createPlaylist(trimmedName, description.trim(), isPrivate, coverArt);
       
       if (!playlistId) {
         setNameError('Failed to create playlist');
@@ -183,7 +200,7 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
       // Track playlist creation
       analyticsEventBus.publish('playlist_create', {
         playlist_id: playlistId,
-        playlist_name: name.trim(),
+        playlist_name: trimmedName,
         is_private: isPrivate,
         has_description: description.trim().length > 0,
         has_cover_art: !!coverArt,
@@ -203,6 +220,10 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
       if (onSuccess) {
         onSuccess(playlistId);
       }
+      
+      // Show success message
+      Alert.alert('Success', `Playlist "${trimmedName}" created successfully!`);
+      
     } catch (error) {
       console.error('Error creating playlist:', error);
       
@@ -212,6 +233,10 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
         action: 'playlist_creation_error',
         error_message: error instanceof Error ? error.message : 'Unknown error',
       });
+      
+      setNameError('Failed to create playlist. Please try again.');
+    } finally {
+      setIsCreating(false);
     }
   };
   
@@ -252,7 +277,7 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
             </TouchableOpacity>
           </View>
           
-          <ScrollView style={styles.form}>
+          <ScrollView style={styles.form} showsVerticalScrollIndicator={false}>
             {/* Cover Art Section */}
             <Text style={styles.label}>Cover Art (optional)</Text>
             <View style={styles.coverArtSection}>
@@ -284,10 +309,10 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
               )}
             </View>
             
-            <Text style={styles.label}>Name</Text>
+            <Text style={styles.label}>Name *</Text>
             <TextInput
               style={[styles.input, nameError ? styles.inputError : null]}
-              placeholder="Playlist name"
+              placeholder="Enter playlist name"
               placeholderTextColor={colors.textSecondary}
               value={name}
               onChangeText={(text) => {
@@ -297,6 +322,7 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
                 }
               }}
               autoFocus
+              maxLength={50}
             />
             {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
             
@@ -310,6 +336,7 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
               multiline
               numberOfLines={4}
               textAlignVertical="top"
+              maxLength={200}
             />
             
             <View style={styles.switchContainer}>
@@ -342,16 +369,22 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
             <TouchableOpacity 
               style={styles.cancelButton}
               onPress={handleCancel}
+              disabled={isCreating}
             >
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={[styles.createButton, !name.trim() ? styles.disabledButton : null]}
+              style={[
+                styles.createButton, 
+                (!name.trim() || isCreating || isUploading) ? styles.disabledButton : null
+              ]}
               onPress={handleCreatePlaylist}
-              disabled={!name.trim() || isUploading}
+              disabled={!name.trim() || isCreating || isUploading}
             >
-              <Text style={styles.createButtonText}>Create</Text>
+              <Text style={styles.createButtonText}>
+                {isCreating ? 'Creating...' : 'Create'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -366,14 +399,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: 20,
   },
   modalContent: {
-    width: '90%',
-    maxWidth: 500,
+    width: '100%',
+    maxWidth: Math.min(width * 0.9, 500),
+    maxHeight: height * 0.85,
     backgroundColor: colors.card,
     borderRadius: 12,
     overflow: 'hidden',
-    maxHeight: '80%',
   },
   header: {
     flexDirection: 'row',
@@ -393,6 +427,7 @@ const styles = StyleSheet.create({
   },
   form: {
     padding: 16,
+    flex: 1,
   },
   label: {
     fontSize: 16,
@@ -449,6 +484,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 1,
     borderColor: colors.border,
+    fontSize: 16,
   },
   inputError: {
     borderColor: colors.error,
@@ -484,14 +520,16 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopWidth: 1,
     borderTopColor: colors.border,
+    gap: 8,
   },
   cancelButton: {
     paddingVertical: 12,
     paddingHorizontal: 16,
-    marginRight: 8,
+    borderRadius: 8,
+    backgroundColor: colors.cardElevated,
   },
   cancelButtonText: {
-    color: colors.textSecondary,
+    color: colors.text,
     fontSize: 16,
     fontWeight: '600',
   },

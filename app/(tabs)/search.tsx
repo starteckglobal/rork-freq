@@ -9,7 +9,8 @@ import {
   ScrollView,
   FlatList,
   Image,
-  Dimensions
+  Dimensions,
+  Platform
 } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Search, X } from 'lucide-react-native';
@@ -23,6 +24,7 @@ import { usePlayerStore } from '@/store/player-store';
 import { freqLogoUrl } from '@/constants/images';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -38,6 +40,7 @@ export default function SearchScreen() {
   const analytics = useAnalytics();
   const [searchPerformed, setSearchPerformed] = useState(false);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   
   const filteredTracks = searchQuery 
     ? tracks.filter(track => 
@@ -130,6 +133,20 @@ export default function SearchScreen() {
 
   const handleLogoPress = () => {
     router.push('/(tabs)');
+  };
+  
+  // Calculate content padding based on player state
+  const getContentPaddingBottom = () => {
+    const baseTabBarHeight = Platform.OS === 'ios' ? 80 + insets.bottom : 70;
+    const miniPlayerHeight = Platform.OS === 'web' ? 60 : 70;
+    
+    if (currentTrack && isMinimized) {
+      return baseTabBarHeight + miniPlayerHeight + 20;
+    } else if (currentTrack && !isMinimized) {
+      return 20; // Full player covers everything
+    } else {
+      return baseTabBarHeight + 20;
+    }
   };
   
   const renderSearchResults = () => {
@@ -311,14 +328,13 @@ export default function SearchScreen() {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.content,
-          currentTrack && !isMinimized ? styles.contentWithPlayer : null,
+          { paddingBottom: getContentPaddingBottom() }
         ]}
+        showsVerticalScrollIndicator={false}
       >
         {renderSearchResults()}
         {renderBrowseContent()}
       </ScrollView>
-      
-      {currentTrack && isMinimized && <MiniPlayer />}
     </SafeAreaView>
   );
 }
@@ -370,10 +386,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingBottom: 100, // Increased to ensure content is not hidden behind tab bar
-  },
-  contentWithPlayer: {
-    paddingBottom: 0,
   },
   searchResults: {
     marginBottom: 24,

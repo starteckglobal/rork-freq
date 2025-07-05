@@ -14,6 +14,7 @@ import { freqLogoUrl } from '@/constants/images';
 import { UserPlus, Upload } from 'lucide-react-native';
 import LoginModal from '@/components/LoginModal';
 import UploadTrackModal from '@/components/UploadTrackModal';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -22,6 +23,7 @@ export default function HomeScreen() {
   const { isLoggedIn, setShowLoginModal, showLoginModal } = useUserStore();
   const router = useRouter();
   const [showUploadModal, setShowUploadModal] = React.useState(false);
+  const insets = useSafeAreaInsets();
   
   const handleLoginPress = () => {
     setShowLoginModal(true);
@@ -40,6 +42,20 @@ export default function HomeScreen() {
       setShowUploadModal(true);
     } else {
       setShowLoginModal(true);
+    }
+  };
+  
+  // Calculate content padding based on player state
+  const getContentPaddingBottom = () => {
+    const baseTabBarHeight = Platform.OS === 'ios' ? 80 + insets.bottom : 70;
+    const miniPlayerHeight = Platform.OS === 'web' ? 60 : 70;
+    
+    if (currentTrack && isMinimized) {
+      return baseTabBarHeight + miniPlayerHeight + 20;
+    } else if (currentTrack && !isMinimized) {
+      return 20; // Full player covers everything
+    } else {
+      return baseTabBarHeight + 20;
     }
   };
   
@@ -101,18 +117,15 @@ export default function HomeScreen() {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.content,
-          currentTrack && !isMinimized ? styles.contentWithPlayer : null,
-          currentTrack && isMinimized ? styles.contentWithMiniPlayer : null,
+          { paddingBottom: getContentPaddingBottom() }
         ]}
+        showsVerticalScrollIndicator={false}
       >
         <PlaylistRow title="Featured Playlists" playlists={featuredPlaylists} />
         <TrackList title="Trending Now" tracks={trendingTracks} />
         <TrackList title="New Releases" tracks={newReleases} />
         <TrackList title="Recommended for You" tracks={featuredTracks} />
       </ScrollView>
-      
-      {currentTrack && isMinimized && <MiniPlayer />}
-      {currentTrack && !isMinimized && <FullPlayer />}
       
       <LoginModal 
         visible={showLoginModal} 
@@ -141,13 +154,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
-    paddingBottom: Platform.OS === 'web' ? 16 : 100, // Increased to ensure content is not hidden behind tab bar
-  },
-  contentWithPlayer: {
-    paddingBottom: 0,
-  },
-  contentWithMiniPlayer: {
-    paddingBottom: Platform.OS === 'web' ? 60 : 140, // Extra space for mini player
   },
   logo: {
     width: 40,

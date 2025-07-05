@@ -78,6 +78,8 @@ import { colors } from '@/constants/colors';
 import { useUserStore } from '@/store/user-store';
 import { LinearGradient } from 'expo-linear-gradient';
 import { tracks } from '@/mocks/tracks';
+import { usePlayerStore } from '@/store/player-store';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -372,6 +374,7 @@ const catalogData = tracks.slice(0, 6).map(track => ({
 export default function SyncLabScreen() {
   const router = useRouter();
   const { isLoggedIn, setShowLoginModal, currentUser, subscribeToPlan } = useUserStore();
+  const { currentTrack, isMinimized } = usePlayerStore();
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanId>('yearly');
   const [loading, setLoading] = useState<boolean>(false);
   const [showSubscriptionSection, setShowSubscriptionSection] = useState<boolean>(true);
@@ -393,6 +396,7 @@ export default function SyncLabScreen() {
   const [selectedSubmissionTracks, setSelectedSubmissionTracks] = useState<string[]>([]);
   const [submissionNote, setSubmissionNote] = useState<string>('');
   const [showSubmissionForm, setShowSubmissionForm] = useState<boolean>(false);
+  const insets = useSafeAreaInsets();
   
   // Check if user is subscribed
   const hasSubscription = currentUser?.subscription?.plan !== undefined;
@@ -688,6 +692,20 @@ export default function SyncLabScreen() {
       "This would show detailed information about the track and its sync history.",
       [{ text: "OK" }]
     );
+  };
+  
+  // Calculate content padding based on player state
+  const getContentPaddingBottom = () => {
+    const baseTabBarHeight = Platform.OS === 'ios' ? 80 + insets.bottom : 70;
+    const miniPlayerHeight = Platform.OS === 'web' ? 60 : 70;
+    
+    if (currentTrack && isMinimized) {
+      return baseTabBarHeight + miniPlayerHeight + 20;
+    } else if (currentTrack && !isMinimized) {
+      return 20; // Full player covers everything
+    } else {
+      return baseTabBarHeight + 20;
+    }
   };
   
   const renderSubscriptionSection = () => (
@@ -1558,7 +1576,9 @@ export default function SyncLabScreen() {
                   onPress={() => {
                     Alert.alert(
                       opportunity.title,
-                      "Requirements: " + opportunity.requirements + "\n\nSubmission Process: " + opportunity.submissionProcess,
+                      "Requirements: " + opportunity.requirements + "
+
+Submission Process: " + opportunity.submissionProcess,
                       [
                         { text: "Cancel", style: "cancel" },
                         { text: "Apply Now", onPress: () => handleApplyToOpportunity(opportunity.id) }
@@ -1873,7 +1893,13 @@ export default function SyncLabScreen() {
         )
       }} />
       
-      <ScrollView style={styles.scrollView}>
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={[
+          { paddingBottom: getContentPaddingBottom() }
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
         {!isLoggedIn && (
           <View style={styles.loginPrompt}>
             <Lock size={24} color={colors.textSecondary} />

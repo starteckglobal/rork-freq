@@ -8,7 +8,8 @@ import {
   TouchableOpacity, 
   ScrollView, 
   Alert,
-  Dimensions
+  Dimensions,
+  Platform
 } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { 
@@ -40,6 +41,7 @@ import { tracks } from '@/mocks/tracks';
 import FollowersModal from '@/components/FollowersModal';
 import { users } from '@/mocks/users';
 import { Track } from '@/types/audio';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -58,6 +60,7 @@ export default function ProfileScreen() {
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [showFollowingModal, setShowFollowingModal] = useState(false);
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   
   // Get followers and following from user store or default to empty arrays
   const following = currentUser?.following || [];
@@ -141,6 +144,20 @@ export default function ProfileScreen() {
     router.push('/(tabs)');
   };
   
+  // Calculate content padding based on player state
+  const getContentPaddingBottom = () => {
+    const baseTabBarHeight = Platform.OS === 'ios' ? 80 + insets.bottom : 70;
+    const miniPlayerHeight = Platform.OS === 'web' ? 60 : 70;
+    
+    if (currentTrack && isMinimized) {
+      return baseTabBarHeight + miniPlayerHeight + 20;
+    } else if (currentTrack && !isMinimized) {
+      return 20; // Full player covers everything
+    } else {
+      return baseTabBarHeight + 20;
+    }
+  };
+  
   if (!isLoggedIn) {
     return (
       <SafeAreaView style={styles.container}>
@@ -221,9 +238,9 @@ export default function ProfileScreen() {
         style={styles.scrollView}
         contentContainerStyle={[
           styles.content,
-          currentTrack && isMinimized ? styles.contentWithMiniPlayer : null,
-          currentTrack && !isMinimized ? styles.contentWithFullPlayer : null,
+          { paddingBottom: getContentPaddingBottom() }
         ]}
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
@@ -564,13 +581,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingBottom: 100, // Increased to ensure content is not hidden behind tab bar
-  },
-  contentWithMiniPlayer: {
-    paddingBottom: 140, // Space for mini player
-  },
-  contentWithFullPlayer: {
-    paddingBottom: 20,
+    flex: 1,
   },
   profileHeader: {
     padding: 16,

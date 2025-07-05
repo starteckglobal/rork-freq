@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList, Alert, Dimensions } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, FlatList, Alert, Dimensions, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Plus, Music, ListMusic, FolderPlus, Clock } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
@@ -11,6 +11,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import PlaylistCreationModal from '@/components/PlaylistCreationModal';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { usePlayerStore } from '@/store/player-store';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -24,9 +26,11 @@ export default function LibraryScreen() {
     setShowLoginModal,
     userPlaylists // Use the actual user store playlists
   } = useUserStore();
+  const { currentTrack, isMinimized } = usePlayerStore();
   const [activeTab, setActiveTab] = useState('playlists');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const analytics = useAnalytics();
+  const insets = useSafeAreaInsets();
   
   // Filter liked tracks
   const likedTracksList = tracks.filter(track => likedTracks?.includes(track.id) || false);
@@ -57,7 +61,7 @@ export default function LibraryScreen() {
   const handlePlaylistCreated = (playlistId: string) => {
     // The playlist is already created in the store, no need to manually add it
     // Just show success message
-    Alert.alert('Success', 'Playlist created successfully!');
+    console.log('Playlist created with ID:', playlistId);
   };
   
   const handleTabChange = (tab: string) => {
@@ -92,6 +96,20 @@ export default function LibraryScreen() {
   
   // Use the actual user playlists from the store, fallback to empty array
   const displayPlaylists = userPlaylists || [];
+  
+  // Calculate content padding based on player state
+  const getContentPaddingBottom = () => {
+    const baseTabBarHeight = Platform.OS === 'ios' ? 80 + insets.bottom : 70;
+    const miniPlayerHeight = Platform.OS === 'web' ? 60 : 70;
+    
+    if (currentTrack && isMinimized) {
+      return baseTabBarHeight + miniPlayerHeight + 20;
+    } else if (currentTrack && !isMinimized) {
+      return 20; // Full player covers everything
+    } else {
+      return baseTabBarHeight + 20;
+    }
+  };
   
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -150,51 +168,52 @@ export default function LibraryScreen() {
         </ScrollView>
       </View>
       
-      {activeTab === 'playlists' ? (
-        <View style={styles.content}>
-          {!isLoggedIn ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateTitle}>Create your first playlist</Text>
-              <Text style={styles.emptyStateText}>
-                Log in to create and save playlists of your favorite tracks
-              </Text>
-              <TouchableOpacity 
-                style={styles.loginButton}
-                onPress={() => {
-                  analyticsEventBus.publish('custom_event', {
-                    category: 'user_action',
-                    action: 'login_prompt_click',
-                    source: 'library_playlists'
-                  });
-                  setShowLoginModal(true);
-                }}
-              >
-                <Text style={styles.loginButtonText}>Login</Text>
-              </TouchableOpacity>
-            </View>
-          ) : displayPlaylists.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateTitle}>Create your first playlist</Text>
-              <Text style={styles.emptyStateText}>
-                It's easy to organize your favorite music into playlists
-              </Text>
-              <TouchableOpacity 
-                style={styles.createButton}
-                onPress={handleCreatePlaylist}
-              >
-                <FolderPlus size={20} color={colors.text} />
-                <Text style={styles.createButtonText}>Create Playlist</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <FlatList
-              data={displayPlaylists}
-              renderItem={renderPlaylistItem}
-              keyExtractor={(item) => item.id}
-              numColumns={2}
-              contentContainerStyle={styles.playlistGrid}
-              columnWrapperStyle={displayPlaylists.length > 1 ? styles.playlistRow : undefined}
-              ListHeaderComponent={
+      <ScrollView 
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.content,
+          { paddingBottom: getContentPaddingBottom() }
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {activeTab === 'playlists' ? (
+          <View style={styles.contentSection}>
+            {!isLoggedIn ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateTitle}>Create your first playlist</Text>
+                <Text style={styles.emptyStateText}>
+                  Log in to create and save playlists of your favorite tracks
+                </Text>
+                <TouchableOpacity 
+                  style={styles.loginButton}
+                  onPress={() => {
+                    analyticsEventBus.publish('custom_event', {
+                      category: 'user_action',
+                      action: 'login_prompt_click',
+                      source: 'library_playlists'
+                    });
+                    setShowLoginModal(true);
+                  }}
+                >
+                  <Text style={styles.loginButtonText}>Login</Text>
+                </TouchableOpacity>
+              </View>
+            ) : displayPlaylists.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateTitle}>Create your first playlist</Text>
+                <Text style={styles.emptyStateText}>
+                  It's easy to organize your favorite music into playlists
+                </Text>
+                <TouchableOpacity 
+                  style={styles.createButton}
+                  onPress={handleCreatePlaylist}
+                >
+                  <FolderPlus size={20} color={colors.text} />
+                  <Text style={styles.createButtonText}>Create Playlist</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={styles.playlistsContainer}>
                 <TouchableOpacity 
                   style={styles.createPlaylistCard}
                   onPress={handleCreatePlaylist}
@@ -204,85 +223,95 @@ export default function LibraryScreen() {
                   </View>
                   <Text style={styles.createPlaylistText}>Create Playlist</Text>
                 </TouchableOpacity>
-              }
-            />
-          )}
-        </View>
-      ) : activeTab === 'tracks' ? (
-        <View style={styles.content}>
-          {!isLoggedIn ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateTitle}>Save tracks you like</Text>
-              <Text style={styles.emptyStateText}>
-                Log in to save tracks to your library
-              </Text>
-              <TouchableOpacity 
-                style={styles.loginButton}
-                onPress={() => {
-                  analyticsEventBus.publish('custom_event', {
-                    category: 'user_action',
-                    action: 'login_prompt_click',
-                    source: 'library_tracks'
-                  });
-                  setShowLoginModal(true);
-                }}
-              >
-                <Text style={styles.loginButtonText}>Login</Text>
-              </TouchableOpacity>
-            </View>
-          ) : likedTracksList.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateTitle}>No liked tracks yet</Text>
-              <Text style={styles.emptyStateText}>
-                Tap the heart icon on any track to add it to your liked tracks
-              </Text>
-            </View>
-          ) : (
-            <TrackList 
-              title="Liked Tracks"
-              tracks={likedTracksList}
-              showHeader={false}
-            />
-          )}
-        </View>
-      ) : (
-        <View style={styles.content}>
-          {!isLoggedIn ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateTitle}>See your listening history</Text>
-              <Text style={styles.emptyStateText}>
-                Log in to view your recently played tracks
-              </Text>
-              <TouchableOpacity 
-                style={styles.loginButton}
-                onPress={() => {
-                  analyticsEventBus.publish('custom_event', {
-                    category: 'user_action',
-                    action: 'login_prompt_click',
-                    source: 'library_recent'
-                  });
-                  setShowLoginModal(true);
-                }}
-              >
-                <Text style={styles.loginButtonText}>Login</Text>
-              </TouchableOpacity>
-            </View>
-          ) : recentlyPlayedList.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateTitle}>No recent tracks</Text>
-              <Text style={styles.emptyStateText}>
-                Start playing some music to see your recently played tracks here
-              </Text>
-            </View>
-          ) : (
-            <TrackList 
-              title="Recently Played"
-              tracks={recentlyPlayedList}
-              showHeader={false}
-            />
-          )}
-        </View>
-      )}
+                
+                <FlatList
+                  data={displayPlaylists}
+                  renderItem={renderPlaylistItem}
+                  keyExtractor={(item) => item.id}
+                  numColumns={2}
+                  columnWrapperStyle={displayPlaylists.length > 1 ? styles.playlistRow : undefined}
+                  scrollEnabled={false}
+                  contentContainerStyle={styles.playlistGrid}
+                />
+              </View>
+            )}
+          </View>
+        ) : activeTab === 'tracks' ? (
+          <View style={styles.contentSection}>
+            {!isLoggedIn ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateTitle}>Save tracks you like</Text>
+                <Text style={styles.emptyStateText}>
+                  Log in to save tracks to your library
+                </Text>
+                <TouchableOpacity 
+                  style={styles.loginButton}
+                  onPress={() => {
+                    analyticsEventBus.publish('custom_event', {
+                      category: 'user_action',
+                      action: 'login_prompt_click',
+                      source: 'library_tracks'
+                    });
+                    setShowLoginModal(true);
+                  }}
+                >
+                  <Text style={styles.loginButtonText}>Login</Text>
+                </TouchableOpacity>
+              </View>
+            ) : likedTracksList.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateTitle}>No liked tracks yet</Text>
+                <Text style={styles.emptyStateText}>
+                  Tap the heart icon on any track to add it to your liked tracks
+                </Text>
+              </View>
+            ) : (
+              <TrackList 
+                title="Liked Tracks"
+                tracks={likedTracksList}
+                showHeader={false}
+              />
+            )}
+          </View>
+        ) : (
+          <View style={styles.contentSection}>
+            {!isLoggedIn ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateTitle}>See your listening history</Text>
+                <Text style={styles.emptyStateText}>
+                  Log in to view your recently played tracks
+                </Text>
+                <TouchableOpacity 
+                  style={styles.loginButton}
+                  onPress={() => {
+                    analyticsEventBus.publish('custom_event', {
+                      category: 'user_action',
+                      action: 'login_prompt_click',
+                      source: 'library_recent'
+                    });
+                    setShowLoginModal(true);
+                  }}
+                >
+                  <Text style={styles.loginButtonText}>Login</Text>
+                </TouchableOpacity>
+              </View>
+            ) : recentlyPlayedList.length === 0 ? (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateTitle}>No recent tracks</Text>
+                <Text style={styles.emptyStateText}>
+                  Start playing some music to see your recently played tracks here
+                </Text>
+              </View>
+            ) : (
+              <TrackList 
+                title="Recently Played"
+                tracks={recentlyPlayedList}
+                showHeader={false}
+              />
+            )}
+          </View>
+        )}
+      </ScrollView>
       
       <PlaylistCreationModal
         visible={showCreateModal}
@@ -344,16 +373,21 @@ const styles = StyleSheet.create({
   activeTabText: {
     color: colors.primary,
   },
-  content: {
+  scrollView: {
     flex: 1,
+  },
+  content: {
     paddingHorizontal: 16,
-    paddingBottom: 100, // Increased to ensure content is not hidden behind tab bar
+  },
+  contentSection: {
+    flex: 1,
   },
   emptyState: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
+    minHeight: 300,
   },
   emptyStateTitle: {
     fontSize: 20,
@@ -393,8 +427,11 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginLeft: 8,
   },
+  playlistsContainer: {
+    flex: 1,
+  },
   playlistGrid: {
-    paddingBottom: 100, // Increased to ensure content is not hidden behind tab bar
+    paddingTop: 16,
   },
   playlistRow: {
     justifyContent: 'space-between',

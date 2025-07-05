@@ -9,7 +9,8 @@ import {
   Image, 
   ActivityIndicator,
   Alert,
-  Platform
+  Platform,
+  Dimensions
 } from 'react-native';
 import { X, Plus, Check, Music } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
@@ -18,6 +19,8 @@ import { useUserStore } from '@/store/user-store';
 import { analytics } from '@/services/analytics';
 import { Track } from '@/types/audio';
 import PlaylistCreationModal from './PlaylistCreationModal';
+
+const { width, height } = Dimensions.get('window');
 
 interface AddToPlaylistModalProps {
   visible: boolean;
@@ -35,6 +38,7 @@ export default function AddToPlaylistModal({
   const [loading, setLoading] = useState(false);
   const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
   const [selectedPlaylists, setSelectedPlaylists] = useState<string[]>([]);
+  const [initialSelections, setInitialSelections] = useState<string[]>([]);
   
   // Reset selections when modal is opened
   useEffect(() => {
@@ -45,6 +49,7 @@ export default function AddToPlaylistModal({
         .map(playlist => playlist.id);
       
       setSelectedPlaylists(initialSelections);
+      setInitialSelections(initialSelections);
     }
   }, [visible, userPlaylists, track.id]);
   
@@ -64,15 +69,17 @@ export default function AddToPlaylistModal({
     try {
       // Get all playlists
       const allPlaylists = userPlaylists || [];
+      let changesCount = 0;
       
       // For each playlist, check if it should contain the track
       for (const playlist of allPlaylists) {
         const shouldContainTrack = selectedPlaylists.includes(playlist.id);
-        const doesContainTrack = playlist.tracks && playlist.tracks.includes(track.id);
+        const didContainTrack = initialSelections.includes(playlist.id);
         
-        // If the track should be in the playlist but isn't, add it
-        if (shouldContainTrack && !doesContainTrack) {
+        // If the track should be in the playlist but wasn't initially, add it
+        if (shouldContainTrack && !didContainTrack) {
           addTrackToPlaylist(playlist.id, track.id);
+          changesCount++;
           
           // Track analytics event
           analytics.track('track_added_to_playlist', {
@@ -83,12 +90,15 @@ export default function AddToPlaylistModal({
           });
         }
         
-        // If the track shouldn't be in the playlist but is, remove it
-        if (!shouldContainTrack && doesContainTrack) {
+        // If the track shouldn't be in the playlist but was initially, remove it
+        if (!shouldContainTrack && didContainTrack) {
           removeTrackFromPlaylist(playlist.id, track.id);
+          changesCount++;
           
           // Track analytics event
-          analytics.track('track_removed_from_playlist', {
+          analytics.track('custom_event', {
+            category: 'playlist',
+            action: 'track_removed',
             track_id: track.id,
             track_title: track.title,
             playlist_id: playlist.id,
@@ -100,8 +110,10 @@ export default function AddToPlaylistModal({
       setLoading(false);
       onClose();
       
-      // Show success message
-      Alert.alert('Success', 'Playlists updated successfully!');
+      // Show success message only if changes were made
+      if (changesCount > 0) {
+        Alert.alert('Success', 'Playlists updated successfully!');
+      }
     } catch (error) {
       console.error('Error saving playlist selections:', error);
       setLoading(false);
@@ -113,6 +125,11 @@ export default function AddToPlaylistModal({
     // After a playlist is created, add it to our selections
     setSelectedPlaylists(prev => [...prev, playlistId]);
     setShowCreatePlaylist(false);
+    
+    // Automatically add the track to the new playlist
+    setTimeout(() => {
+      addTrackToPlaylist(playlistId, track.id);
+    }, 100);
   };
   
   const renderPlaylistItem = ({ item }: { item: any }) => {
@@ -123,6 +140,7 @@ export default function AddToPlaylistModal({
         style={[styles.playlistItem, isSelected && styles.playlistItemSelected]}
         onPress={() => togglePlaylistSelection(item.id)}
         disabled={loading}
+        activeOpacity={0.7}
       >
         <Image 
           source={{ uri: item.coverArt || defaultCoverArt }}
@@ -189,6 +207,7 @@ export default function AddToPlaylistModal({
               style={styles.createPlaylistButton}
               onPress={() => setShowCreatePlaylist(true)}
               disabled={loading}
+              activeOpacity={0.7}
             >
               <Plus size={20} color={colors.primary} />
               <Text style={styles.createPlaylistText}>Create New Playlist</Text>
@@ -207,6 +226,7 @@ export default function AddToPlaylistModal({
                 keyExtractor={item => item.id}
                 style={styles.playlistList}
                 contentContainerStyle={styles.playlistListContent}
+                showsVerticalScrollIndicator={false}
               />
             )}
             
@@ -254,11 +274,11 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     width: '100%',
-    maxHeight: '90%',
+    maxWidth: Math.min(width * 0.9, 500),
+    maxHeight: height * 0.85,
     backgroundColor: colors.background,
     borderRadius: 12,
     overflow: 'hidden',
-    maxWidth: Platform.OS === 'web' ? 500 : undefined,
   },
   header: {
     flexDirection: 'row',
@@ -394,6 +414,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopWidth: 1,
     borderTopColor: colors.border,
+    gap: 8,
   },
   cancelButton: {
     flex: 1,
@@ -401,7 +422,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: 'center',
-    marginRight: 8,
   },
   cancelButtonText: {
     color: colors.text,
@@ -414,7 +434,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 12,
     alignItems: 'center',
-    marginLeft: 8,
   },
   saveButtonText: {
     color: colors.text,
