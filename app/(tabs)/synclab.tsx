@@ -1576,9 +1576,7 @@ export default function SyncLabScreen() {
                   onPress={() => {
                     Alert.alert(
                       opportunity.title,
-                      "Requirements: " + opportunity.requirements + "
-
-Submission Process: " + opportunity.submissionProcess,
+                      `Requirements: ${opportunity.requirements}\n\nSubmission Process: ${opportunity.submissionProcess}`,
                       [
                         { text: "Cancel", style: "cancel" },
                         { text: "Apply Now", onPress: () => handleApplyToOpportunity(opportunity.id) }
