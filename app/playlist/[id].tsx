@@ -32,7 +32,8 @@ import { usePlayerStore } from '@/store/player-store';
 import { tracks } from '@/mocks/tracks';
 import { playlists } from '@/mocks/playlists';
 import { users } from '@/mocks/users';
-import { Track, Playlist } from '@/types/audio';
+import { Track, Playlist as AudioPlaylist } from '@/types/audio';
+import { Playlist as UserPlaylist } from '@/store/user-store';
 
 export default function PlaylistScreen() {
   const { id } = useLocalSearchParams();
@@ -40,7 +41,7 @@ export default function PlaylistScreen() {
   const { isLoggedIn, currentUser, likePlaylist, unlikePlaylist, isPlaylistLiked, userPlaylists } = useUserStore();
   const { playTrack, playerState, currentTrack, togglePlay } = usePlayerStore();
   
-  const [playlist, setPlaylist] = useState<Playlist | null>(null);
+  const [playlist, setPlaylist] = useState<AudioPlaylist | UserPlaylist | null>(null);
   const [playlistTracks, setPlaylistTracks] = useState<Track[]>([]);
   const [creator, setCreator] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -52,7 +53,7 @@ export default function PlaylistScreen() {
   
   useEffect(() => {
     // Find the playlist by ID - check both mock playlists and user playlists
-    let foundPlaylist = playlists.find(p => p.id === id);
+    let foundPlaylist: AudioPlaylist | UserPlaylist | undefined = playlists.find(p => p.id === id);
     
     // If not found in mock playlists, check user playlists
     if (!foundPlaylist && userPlaylists) {
@@ -64,15 +65,15 @@ export default function PlaylistScreen() {
       
       // Find the creator - for user playlists, use current user
       let playlistCreator;
-      if (foundPlaylist.createdBy === currentUser?.id) {
+      if (foundPlaylist && foundPlaylist.createdBy === currentUser?.id) {
         playlistCreator = currentUser;
-      } else {
+      } else if (foundPlaylist) {
         playlistCreator = users.find(user => user.id === foundPlaylist.createdBy);
       }
       setCreator(playlistCreator);
       
       // Get the tracks in the playlist - use tracks array directly
-      const trackIds = foundPlaylist.tracks || [];
+      const trackIds = foundPlaylist?.tracks || [];
       const foundTracks = tracks.filter(track => 
         trackIds.includes(track.id)
       );
@@ -224,7 +225,7 @@ export default function PlaylistScreen() {
           />
           
           <View style={styles.headerInfo}>
-            <Text style={styles.playlistName}>{playlist.name}</Text>
+            <Text style={styles.playlistName}>{playlist.name || (playlist as AudioPlaylist).title}</Text>
             
             <TouchableOpacity
               style={styles.creatorButton}
@@ -241,7 +242,7 @@ export default function PlaylistScreen() {
               </Text>
               
               <View style={styles.privacyBadge}>
-                {playlist.isPrivate ? (
+                {(playlist as UserPlaylist).isPrivate || !(playlist as AudioPlaylist).isPublic ? (
                   <>
                     <Lock size={12} color={colors.textSecondary} />
                     <Text style={styles.privacyText}>Private</Text>
