@@ -138,14 +138,14 @@ export default function SearchScreen() {
   // Calculate content padding based on player state
   const getContentPaddingBottom = () => {
     const baseTabBarHeight = Platform.OS === 'ios' ? 80 + insets.bottom : 70;
-    const miniPlayerHeight = Platform.OS === 'web' ? 60 : 70;
+    const miniPlayerHeight = 60;
     
     if (currentTrack && isMinimized) {
-      return baseTabBarHeight + miniPlayerHeight + 20;
+      return baseTabBarHeight + miniPlayerHeight;
     } else if (currentTrack && !isMinimized) {
       return 20; // Full player covers everything
     } else {
-      return baseTabBarHeight + 20;
+      return baseTabBarHeight;
     }
   };
   

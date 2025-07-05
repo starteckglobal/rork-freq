@@ -46,7 +46,7 @@ export default function TabLayout() {
 
   // Calculate mini player height
   const getMiniPlayerHeight = () => {
-    return Platform.OS === 'web' ? 60 : 70;
+    return 60;
   };
 
   // Calculate bottom padding for content based on player and tab bar
@@ -55,9 +55,9 @@ export default function TabLayout() {
     const miniPlayerHeight = getMiniPlayerHeight();
     
     if (currentTrack && isMinimized) {
-      return tabBarHeight + miniPlayerHeight + 10; // Extra padding for spacing
+      return tabBarHeight + miniPlayerHeight; // No extra padding needed
     } else {
-      return tabBarHeight + 10;
+      return tabBarHeight;
     }
   };
 

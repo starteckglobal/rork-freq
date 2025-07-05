@@ -149,7 +149,7 @@ export const usePlayerStore = create<PlayerStore>()(
           currentTrack: track, 
           playerState: 'playing',
           currentTime: 0,
-          isMinimized: false, // Maximize player when playing a new track
+          isMinimized: true, // Keep player minimized when playing a new track
           waveformData: newWaveformData,
           duration: track.duration || Math.floor(Math.random() * 180) + 120 // Random duration between 2-5 minutes if not provided
         });

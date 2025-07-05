@@ -116,10 +116,6 @@ export default function MiniPlayer() {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    bottom: Platform.OS === 'ios' ? 80 : 60, // Height of tab bar
-    left: 0,
-    right: 0,
     height: 60,
     backgroundColor: colors.cardElevated,
     flexDirection: 'row',
@@ -127,7 +123,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderTopWidth: 1,
     borderTopColor: colors.border,
-    zIndex: 100,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.1,
