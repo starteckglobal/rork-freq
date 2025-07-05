@@ -15,6 +15,7 @@ export type AnalyticsEventType =
   | 'track_add_to_playlist'
   | 'track_added_to_playlist'
   | 'track_remove_from_playlist'
+  | 'track_removed_from_playlist'
   | 'track_pause'
   | 'track_seek'
   | 'track_skip'
