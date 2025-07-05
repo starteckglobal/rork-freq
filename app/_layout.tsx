@@ -1,101 +1,47 @@
-import React, { useEffect } from 'react';
-import { Stack } from 'expo-router';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { useColorScheme } from 'react-native';
-import { colors } from '@/constants/colors';
-import { useUserStore } from '@/store/user-store';
-import LoginModal from '@/components/LoginModal';
+import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
+import 'react-native-reanimated/lib/reanimated2/js-reanimated/index';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { trpc, trpcClient } from '@/lib/trpc';
+
+// Prevent the splash screen from auto-hiding before asset loading is complete.
+SplashScreen.preventAutoHideAsync();
+
+// Create a client
+const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const { showLoginModal, setShowLoginModal } = useUserStore();
-  
   const [loaded] = useFonts({
-    // Add any custom fonts here if needed
+    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
   });
-  
+
+  useEffect(() => {
+    if (loaded) {
+      SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
   if (!loaded) {
     return null;
   }
-  
+
   return (
-    <>
-      <Stack
-        screenOptions={{
-          headerStyle: {
-            backgroundColor: colors.background,
-          },
-          headerTintColor: colors.text,
-          contentStyle: {
-            backgroundColor: colors.background,
-          },
-        }}
-      >
-        <Stack.Screen
-          name="(tabs)"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="track/[id]"
-          options={{
-            title: 'Track',
-            headerBackTitle: 'Back',
-          }}
-        />
-        <Stack.Screen
-          name="playlist/[id]"
-          options={{
-            title: 'Playlist',
-            headerBackTitle: 'Back',
-          }}
-        />
-        <Stack.Screen
-          name="profile/[id]"
-          options={{
-            title: 'Profile',
-            headerBackTitle: 'Back',
-          }}
-        />
-        <Stack.Screen
-          name="settings/index"
-          options={{
-            title: 'Settings',
-            headerBackTitle: 'Back',
-          }}
-        />
-        <Stack.Screen
-          name="analytics/index"
-          options={{
-            title: 'Analytics',
-            headerBackTitle: 'Back',
-          }}
-        />
-        <Stack.Screen
-          name="messages/index"
-          options={{
-            title: 'Messages',
-            headerBackTitle: 'Back',
-          }}
-        />
-        <Stack.Screen
-          name="messages/[id]"
-          options={{
-            title: 'Conversation',
-            headerBackTitle: 'Back',
-          }}
-        />
-        <Stack.Screen
-          name="messages/new"
-          options={{
-            title: 'New Message',
-            headerBackTitle: 'Back',
-          }}
-        />
-      </Stack>
-      
-      {showLoginModal && <LoginModal visible={showLoginModal} onClose={() => setShowLoginModal(false)} />}
-    </>
+    <trpc.Provider client={trpcClient} queryClient={queryClient}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </QueryClientProvider>
+    </trpc.Provider>
   );
 }
