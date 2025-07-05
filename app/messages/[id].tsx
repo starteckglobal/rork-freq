@@ -215,7 +215,7 @@ export default function ConversationScreen() {
     );
   }
   
-  const user = users.find(u => u.id === conversation.userId);
+  const user = users.find(u => u.id === conversation!.userId);
   
   if (!user) {
     return (

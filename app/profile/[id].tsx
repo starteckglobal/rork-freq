@@ -175,7 +175,6 @@ export default function UserProfileScreen() {
             <TrackList 
               title={`Tracks by ${user.displayName}`} 
               tracks={userTracks}
-              showArtist={false}
             />
           ) : (
             <View style={styles.emptyState}>
@@ -193,14 +192,14 @@ export default function UserProfileScreen() {
       <FollowersModal
         visible={showFollowersModal}
         onClose={() => setShowFollowersModal(false)}
-        type="followers"
+        title="Followers"
         users={users.slice(0, 3)} // Mock followers
       />
       
       <FollowersModal
         visible={showFollowingModal}
         onClose={() => setShowFollowingModal(false)}
-        type="following"
+        title="Following"
         users={users.slice(1, 4)} // Mock following
       />
     </SafeAreaView>
