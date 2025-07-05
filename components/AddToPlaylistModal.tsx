@@ -30,7 +30,7 @@ export default function AddToPlaylistModal({
   onClose, 
   track 
 }: AddToPlaylistModalProps) {
-  const { userPlaylists, addTrackToPlaylist } = useUserStore();
+  const { userPlaylists, addTrackToPlaylist, removeTrackFromPlaylist } = useUserStore();
   
   const [loading, setLoading] = useState(false);
   const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
@@ -38,17 +38,15 @@ export default function AddToPlaylistModal({
   
   // Reset selections when modal is opened
   useEffect(() => {
-    if (visible) {
+    if (visible && userPlaylists) {
       // Find playlists that already contain this track
-      const initialSelections = userPlaylists && userPlaylists.length > 0
-        ? userPlaylists.filter(playlist => 
-            playlist.tracks && playlist.tracks.includes(track.id)
-          ).map(playlist => playlist.id)
-        : [];
+      const initialSelections = userPlaylists
+        .filter(playlist => playlist.tracks && playlist.tracks.includes(track.id))
+        .map(playlist => playlist.id);
       
       setSelectedPlaylists(initialSelections);
     }
-  }, [visible, userPlaylists, track]);
+  }, [visible, userPlaylists, track.id]);
   
   const togglePlaylistSelection = (playlistId: string) => {
     setSelectedPlaylists(prev => {
@@ -85,12 +83,25 @@ export default function AddToPlaylistModal({
           });
         }
         
-        // Note: We're not removing tracks from playlists here
-        // That would typically be done from the playlist view
+        // If the track shouldn't be in the playlist but is, remove it
+        if (!shouldContainTrack && doesContainTrack) {
+          removeTrackFromPlaylist(playlist.id, track.id);
+          
+          // Track analytics event
+          analytics.track('track_removed_from_playlist', {
+            track_id: track.id,
+            track_title: track.title,
+            playlist_id: playlist.id,
+            playlist_name: playlist.name
+          });
+        }
       }
       
       setLoading(false);
       onClose();
+      
+      // Show success message
+      Alert.alert('Success', 'Playlists updated successfully!');
     } catch (error) {
       console.error('Error saving playlist selections:', error);
       setLoading(false);
@@ -98,16 +109,9 @@ export default function AddToPlaylistModal({
     }
   };
   
-  const handlePlaylistCreated = () => {
-    // After a playlist is created, we'll refresh our selections
-    // The newly created playlist will be in userPlaylists from the store
-    if (userPlaylists && userPlaylists.length > 0) {
-      // Find the most recently created playlist (assuming it's the last one)
-      const newPlaylist = userPlaylists[userPlaylists.length - 1];
-      // Add it to our selections
-      setSelectedPlaylists(prev => [...prev, newPlaylist.id]);
-    }
-    
+  const handlePlaylistCreated = (playlistId: string) => {
+    // After a playlist is created, add it to our selections
+    setSelectedPlaylists(prev => [...prev, playlistId]);
     setShowCreatePlaylist(false);
   };
   

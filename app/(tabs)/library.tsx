@@ -6,10 +6,8 @@ import { colors } from '@/constants/colors';
 import { useUserStore } from '@/store/user-store';
 import TrackList from '@/components/TrackList';
 import PlaylistCard from '@/components/PlaylistCard';
-import { playlists } from '@/mocks/playlists';
 import { tracks } from '@/mocks/tracks';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Playlist } from '@/types/audio';
 import PlaylistCreationModal from '@/components/PlaylistCreationModal';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
 import { useAnalytics } from '@/hooks/useAnalytics';
@@ -18,10 +16,16 @@ const { width } = Dimensions.get('window');
 
 export default function LibraryScreen() {
   const router = useRouter();
-  const { isLoggedIn, likedTracks, recentlyPlayed, showLoginModal, setShowLoginModal } = useUserStore();
+  const { 
+    isLoggedIn, 
+    likedTracks, 
+    recentlyPlayed, 
+    showLoginModal, 
+    setShowLoginModal,
+    userPlaylists // Use the actual user store playlists
+  } = useUserStore();
   const [activeTab, setActiveTab] = useState('playlists');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [userPlaylists, setUserPlaylists] = useState<Playlist[]>(playlists);
   const analytics = useAnalytics();
   
   // Filter liked tracks
@@ -51,30 +55,8 @@ export default function LibraryScreen() {
   };
   
   const handlePlaylistCreated = (playlistId: string) => {
-    // In a real app, we would fetch the new playlist from the API
-    // For now, we'll just add a mock playlist to the list
-    const newPlaylist: Playlist = {
-      id: playlistId,
-      name: 'New Playlist',
-      description: '',
-      coverArt: '',
-      tracks: [],
-      createdBy: 'You',
-      isPrivate: false,
-      createdAt: Date.now(),
-    };
-    
-    setUserPlaylists([newPlaylist, ...userPlaylists]);
-    
-    // Track playlist creation success
-    analyticsEventBus.publish('playlist_create', {
-      playlist_id: playlistId,
-      playlist_name: newPlaylist.name,
-      is_private: newPlaylist.isPrivate,
-      source: 'library_screen'
-    });
-    
-    // Show success toast or notification
+    // The playlist is already created in the store, no need to manually add it
+    // Just show success message
     Alert.alert('Success', 'Playlist created successfully!');
   };
   
@@ -90,7 +72,7 @@ export default function LibraryScreen() {
     });
   };
   
-  const renderPlaylistItem = ({ item }: { item: Playlist }) => (
+  const renderPlaylistItem = ({ item }: { item: any }) => (
     <PlaylistCard
       playlist={item}
       onPress={() => {
@@ -107,6 +89,9 @@ export default function LibraryScreen() {
       }}
     />
   );
+  
+  // Use the actual user playlists from the store, fallback to empty array
+  const displayPlaylists = userPlaylists || [];
   
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -187,7 +172,7 @@ export default function LibraryScreen() {
                 <Text style={styles.loginButtonText}>Login</Text>
               </TouchableOpacity>
             </View>
-          ) : userPlaylists.length === 0 ? (
+          ) : displayPlaylists.length === 0 ? (
             <View style={styles.emptyState}>
               <Text style={styles.emptyStateTitle}>Create your first playlist</Text>
               <Text style={styles.emptyStateText}>
@@ -203,12 +188,12 @@ export default function LibraryScreen() {
             </View>
           ) : (
             <FlatList
-              data={userPlaylists}
+              data={displayPlaylists}
               renderItem={renderPlaylistItem}
               keyExtractor={(item) => item.id}
               numColumns={2}
               contentContainerStyle={styles.playlistGrid}
-              columnWrapperStyle={styles.playlistRow}
+              columnWrapperStyle={displayPlaylists.length > 1 ? styles.playlistRow : undefined}
               ListHeaderComponent={
                 <TouchableOpacity 
                   style={styles.createPlaylistCard}
