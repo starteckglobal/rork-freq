@@ -41,9 +41,9 @@ export default function PlaylistCard({ playlist, onPress }: PlaylistCardProps) {
       </View>
       
       <View style={styles.content}>
-        <Text style={styles.title} numberOfLines={1}>{playlist.title}</Text>
-        <Text style={styles.creator} numberOfLines={1}>By {playlist.creatorName}</Text>
-        <Text style={styles.trackCount}>{playlist.trackCount} tracks</Text>
+        <Text style={styles.title} numberOfLines={1}>{playlist.name}</Text>
+        <Text style={styles.creator} numberOfLines={1}>By You</Text>
+        <Text style={styles.trackCount}>{playlist.tracks?.length || 0} tracks</Text>
       </View>
     </TouchableOpacity>
   );

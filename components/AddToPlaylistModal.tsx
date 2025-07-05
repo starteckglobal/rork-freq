@@ -48,6 +48,7 @@ export default function AddToPlaylistModal({
         .filter(playlist => playlist.tracks && playlist.tracks.includes(track.id))
         .map(playlist => playlist.id);
       
+      console.log('Initial playlist selections for track', track.id, ':', initialSelections);
       setSelectedPlaylists(initialSelections);
       setInitialSelections(initialSelections);
     }
@@ -96,9 +97,7 @@ export default function AddToPlaylistModal({
           changesCount++;
           
           // Track analytics event
-          analytics.track('custom_event', {
-            category: 'playlist',
-            action: 'track_removed',
+          analytics.track('track_remove_from_playlist', {
             track_id: track.id,
             track_title: track.title,
             playlist_id: playlist.id,
@@ -126,9 +125,12 @@ export default function AddToPlaylistModal({
     setSelectedPlaylists(prev => [...prev, playlistId]);
     setShowCreatePlaylist(false);
     
+    console.log('Playlist created, adding track to playlist:', playlistId);
+    
     // Automatically add the track to the new playlist
     setTimeout(() => {
       addTrackToPlaylist(playlistId, track.id);
+      console.log('Track added to new playlist');
     }, 100);
   };
   

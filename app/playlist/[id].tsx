@@ -37,7 +37,7 @@ import { Track, Playlist } from '@/types/audio';
 export default function PlaylistScreen() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
-  const { isLoggedIn, currentUser, likePlaylist, unlikePlaylist, isPlaylistLiked } = useUserStore();
+  const { isLoggedIn, currentUser, likePlaylist, unlikePlaylist, isPlaylistLiked, userPlaylists } = useUserStore();
   const { playTrack, playerState, currentTrack, togglePlay } = usePlayerStore();
   
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
@@ -51,24 +51,34 @@ export default function PlaylistScreen() {
   const isPlaying = playerState === 'playing';
   
   useEffect(() => {
-    // Find the playlist by ID
-    const foundPlaylist = playlists.find(p => p.id === id);
+    // Find the playlist by ID - check both mock playlists and user playlists
+    let foundPlaylist = playlists.find(p => p.id === id);
+    
+    // If not found in mock playlists, check user playlists
+    if (!foundPlaylist && userPlaylists) {
+      foundPlaylist = userPlaylists.find(p => p.id === id);
+    }
     
     if (foundPlaylist) {
       setPlaylist(foundPlaylist);
       
-      // Find the creator
-      const playlistCreator = users.find(user => user.id === foundPlaylist.creatorId);
+      // Find the creator - for user playlists, use current user
+      let playlistCreator;
+      if (foundPlaylist.createdBy === currentUser?.id) {
+        playlistCreator = currentUser;
+      } else {
+        playlistCreator = users.find(user => user.id === foundPlaylist.createdBy);
+      }
       setCreator(playlistCreator);
       
-      // Get the tracks in the playlist - safely handle undefined trackIds
-      const trackIds = foundPlaylist.trackIds || [];
+      // Get the tracks in the playlist - use tracks array directly
+      const trackIds = foundPlaylist.tracks || [];
       const foundTracks = tracks.filter(track => 
         trackIds.includes(track.id)
       );
       setPlaylistTracks(foundTracks);
       
-      // Check if the playlist is liked by the current user - safely handle undefined
+      // Check if the playlist is liked by the current user
       if (isLoggedIn && foundPlaylist.id) {
         setIsLiked(isPlaylistLiked(foundPlaylist.id));
       }
@@ -78,7 +88,7 @@ export default function PlaylistScreen() {
     setTimeout(() => {
       setLoading(false);
     }, 500);
-  }, [id, isLoggedIn, isPlaylistLiked]);
+  }, [id, isLoggedIn, isPlaylistLiked, userPlaylists, currentUser]);
   
   const handlePlayAll = () => {
     if (playlistTracks && playlistTracks.length > 0) {

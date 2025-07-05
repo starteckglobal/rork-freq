@@ -141,7 +141,7 @@ const mockPlaylists: Playlist[] = [
     name: 'My Favorites',
     description: 'A collection of my all-time favorite tracks',
     coverArt: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTV8fG11c2ljfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
-    tracks: ['track-1', 'track-3', 'track-5'],
+    tracks: ['1', '3', '5'],
     createdBy: 'user-1',
     createdAt: '2023-02-10T15:30:00Z',
     isPrivate: false,
@@ -153,12 +153,60 @@ const mockPlaylists: Playlist[] = [
     name: 'Chill Vibes',
     description: 'Perfect for relaxing and unwinding',
     coverArt: 'https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTh8fG11c2ljfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
-    tracks: ['track-2', 'track-4', 'track-6'],
+    tracks: ['2', '4', '6'],
     createdBy: 'user-1',
     createdAt: '2023-03-05T09:15:00Z',
     isPrivate: false,
     likes: 32,
     plays: 980,
+  },
+  {
+    id: 'playlist-3',
+    name: 'Electronic Dreams',
+    description: 'Best electronic tracks from new artists',
+    coverArt: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?q=80&w=500',
+    tracks: ['9', '10', '11', '12'],
+    createdBy: 'user-1',
+    createdAt: '2023-03-15T10:20:00Z',
+    isPrivate: false,
+    likes: 28,
+    plays: 750,
+  },
+  {
+    id: 'playlist-4',
+    name: 'Pop Fusion',
+    description: 'Modern pop with electronic fusion',
+    coverArt: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=500',
+    tracks: ['13', '14', '15'],
+    createdBy: 'user-1',
+    createdAt: '2023-04-01T14:30:00Z',
+    isPrivate: false,
+    likes: 35,
+    plays: 920,
+  },
+  {
+    id: 'playlist-5',
+    name: 'Deep House Sessions',
+    description: 'Deep house tracks for late night vibes',
+    coverArt: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=500',
+    tracks: ['16', '17', '18', '19'],
+    createdBy: 'user-1',
+    createdAt: '2023-04-10T18:45:00Z',
+    isPrivate: false,
+    likes: 42,
+    plays: 1100,
+  },
+  {
+    id: 'playlist-6',
+    name: 'Eastern Vibes',
+    description: 'Traditional meets modern',
+    coverArt: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=500',
+    tracks: ['20'],
+    createdBy: 'user-1',
+    createdAt: '2023-04-15T12:00:00Z',
+    isPrivate: false,
+    likes: 18,
+    plays: 450,
   },
 ];
 
@@ -189,10 +237,22 @@ export const useUserStore = create<UserState>()(
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         if (username === 'demo' && password === 'password') {
+          // Get current state to preserve any existing playlists
+          const currentState = get();
+          const existingPlaylists = currentState.userPlaylists || [];
+          
+          // Merge mock playlists with existing ones (avoid duplicates)
+          const mergedPlaylists = [...mockPlaylists];
+          existingPlaylists.forEach(playlist => {
+            if (!mergedPlaylists.find(p => p.id === playlist.id)) {
+              mergedPlaylists.push(playlist);
+            }
+          });
+          
           set({
             isLoggedIn: true,
             currentUser: mockUser,
-            userPlaylists: mockPlaylists,
+            userPlaylists: mergedPlaylists,
             showLoginModal: false,
           });
           
@@ -473,6 +533,9 @@ export const useUserStore = create<UserState>()(
           return '';
         }
         
+        // Ensure userPlaylists is an array
+        const currentPlaylists = userPlaylists || [];
+        
         const newPlaylist: Playlist = {
           id: generateId(),
           name: name.trim(),
@@ -486,7 +549,7 @@ export const useUserStore = create<UserState>()(
           plays: 0,
         };
         
-        const updatedPlaylists = [...userPlaylists, newPlaylist];
+        const updatedPlaylists = [...currentPlaylists, newPlaylist];
         
         // Update user stats
         const updatedUser = {
@@ -501,6 +564,9 @@ export const useUserStore = create<UserState>()(
           userPlaylists: updatedPlaylists,
           currentUser: updatedUser
         });
+        
+        console.log('Created playlist:', newPlaylist.name, 'with ID:', newPlaylist.id);
+        console.log('Updated playlists count:', updatedPlaylists.length);
         
         // Track playlist creation
         analyticsEventBus.publish('playlist_create', {
@@ -583,21 +649,36 @@ export const useUserStore = create<UserState>()(
           return;
         }
         
-        const playlistIndex = userPlaylists.findIndex(p => p.id === playlistId);
-        if (playlistIndex === -1) return;
+        // Ensure userPlaylists is an array
+        const currentPlaylists = userPlaylists || [];
+        
+        const playlistIndex = currentPlaylists.findIndex(p => p.id === playlistId);
+        if (playlistIndex === -1) {
+          console.log('Playlist not found:', playlistId);
+          return;
+        }
         
         // Check if user owns the playlist
-        if (userPlaylists[playlistIndex].createdBy !== currentUser.id) return;
+        if (currentPlaylists[playlistIndex].createdBy !== currentUser.id) {
+          console.log('User does not own playlist');
+          return;
+        }
         
         // Check if track is already in the playlist
-        if (userPlaylists[playlistIndex].tracks.includes(trackId)) return;
+        if (currentPlaylists[playlistIndex].tracks.includes(trackId)) {
+          console.log('Track already in playlist');
+          return;
+        }
         
-        const updatedTracks = [...userPlaylists[playlistIndex].tracks, trackId];
-        const updatedPlaylist = { ...userPlaylists[playlistIndex], tracks: updatedTracks };
-        const updatedPlaylists = [...userPlaylists];
+        const updatedTracks = [...currentPlaylists[playlistIndex].tracks, trackId];
+        const updatedPlaylist = { ...currentPlaylists[playlistIndex], tracks: updatedTracks };
+        const updatedPlaylists = [...currentPlaylists];
         updatedPlaylists[playlistIndex] = updatedPlaylist;
         
         set({ userPlaylists: updatedPlaylists });
+        
+        console.log('Added track', trackId, 'to playlist', updatedPlaylist.name);
+        console.log('Playlist now has', updatedTracks.length, 'tracks');
         
         // Track add to playlist
         analyticsEventBus.publish('track_add_to_playlist', {
@@ -613,18 +694,24 @@ export const useUserStore = create<UserState>()(
         
         if (!currentUser) return;
         
-        const playlistIndex = userPlaylists.findIndex(p => p.id === playlistId);
+        // Ensure userPlaylists is an array
+        const currentPlaylists = userPlaylists || [];
+        
+        const playlistIndex = currentPlaylists.findIndex(p => p.id === playlistId);
         if (playlistIndex === -1) return;
         
         // Check if user owns the playlist
-        if (userPlaylists[playlistIndex].createdBy !== currentUser.id) return;
+        if (currentPlaylists[playlistIndex].createdBy !== currentUser.id) return;
         
-        const updatedTracks = userPlaylists[playlistIndex].tracks.filter(id => id !== trackId);
-        const updatedPlaylist = { ...userPlaylists[playlistIndex], tracks: updatedTracks };
-        const updatedPlaylists = [...userPlaylists];
+        const updatedTracks = currentPlaylists[playlistIndex].tracks.filter(id => id !== trackId);
+        const updatedPlaylist = { ...currentPlaylists[playlistIndex], tracks: updatedTracks };
+        const updatedPlaylists = [...currentPlaylists];
         updatedPlaylists[playlistIndex] = updatedPlaylist;
         
         set({ userPlaylists: updatedPlaylists });
+        
+        console.log('Removed track', trackId, 'from playlist', updatedPlaylist.name);
+        console.log('Playlist now has', updatedTracks.length, 'tracks');
         
         // Track remove from playlist
         analyticsEventBus.publish('custom_event', {
