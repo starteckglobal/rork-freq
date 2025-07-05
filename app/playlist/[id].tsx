@@ -68,7 +68,7 @@ export default function PlaylistScreen() {
       if (foundPlaylist && foundPlaylist.createdBy === currentUser?.id) {
         playlistCreator = currentUser;
       } else if (foundPlaylist) {
-        playlistCreator = users.find(user => user.id === foundPlaylist.createdBy);
+        playlistCreator = users.find(user => user.id === foundPlaylist?.createdBy);
       }
       setCreator(playlistCreator);
       
