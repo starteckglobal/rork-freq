@@ -64,10 +64,10 @@ export default function UserProfileScreen() {
   };
   
   const handleMessage = () => {
-    router.push({
-      pathname: '/messages/1',
-      params: { userId: user.id }
-    });
+    // Find or create a conversation with this user
+    // For now, we'll use a simple conversation ID based on user ID
+    const conversationId = `conv-${user.id}`;
+    router.push(`/messages/${conversationId}`);
   };
   
   return (

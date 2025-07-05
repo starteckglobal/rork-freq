@@ -181,7 +181,21 @@ export default function ConversationScreen() {
   const flatListRef = useRef<FlatList>(null);
   
   const conversationId = id ? String(id) : '';
-  const conversation = CONVERSATIONS.find(c => c.id === conversationId);
+  
+  // Handle both conversation IDs and user-based conversation IDs
+  let conversation = CONVERSATIONS.find(c => c.id === conversationId);
+  
+  // If no conversation found and it's a user-based ID, create a mock conversation
+  if (!conversation && conversationId.startsWith('conv-')) {
+    const userId = conversationId.replace('conv-', '');
+    conversation = {
+      id: conversationId,
+      userId: userId,
+      lastMessage: "Start a conversation",
+      timestamp: new Date(),
+      unread: 0,
+    };
+  }
   
   if (!conversation) {
     return (

@@ -175,6 +175,11 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
       // Create playlist with cover art
       const playlistId = createPlaylist(name.trim(), description.trim(), isPrivate, coverArt);
       
+      if (!playlistId) {
+        setNameError('Failed to create playlist');
+        return;
+      }
+      
       // Track playlist creation
       analyticsEventBus.publish('playlist_create', {
         playlist_id: playlistId,

@@ -108,8 +108,8 @@ export default function ProfileScreen() {
   };
   
   const handleEditProfile = () => {
-    // In a real app, this would navigate to a profile edit screen
-    Alert.alert("Edit Profile", "This feature is coming soon!");
+    // Navigate to a profile edit screen
+    router.push('/profile/edit');
   };
   
   const handleAnalytics = () => {

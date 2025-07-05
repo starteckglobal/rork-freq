@@ -459,7 +459,7 @@ export default function SettingsScreen() {
             analytics.track('user_logout');
             
             logout();
-            router.push('/');
+            router.replace('/(tabs)');
           },
           style: "destructive"
         }
