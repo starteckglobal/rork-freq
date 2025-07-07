@@ -43,9 +43,17 @@ export default function UserProfileScreen() {
       <SafeAreaView style={styles.container}>
         <Stack.Screen options={{ 
           title: 'User not found',
+          headerStyle: {
+            backgroundColor: '#000000',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <ChevronLeft size={24} color={colors.text} />
+              <ChevronLeft size={24} color="#FFFFFF" />
             </TouchableOpacity>
           ),
         }} />
@@ -74,18 +82,26 @@ export default function UserProfileScreen() {
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ 
         title: user.displayName,
+        headerStyle: {
+          backgroundColor: '#000000',
+        },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: {
+          color: '#FFFFFF',
+          fontWeight: '600',
+        },
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <ChevronLeft size={24} color={colors.text} />
+            <ChevronLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
         ),
         headerRight: () => (
           <View style={styles.headerButtons}>
             <TouchableOpacity style={styles.headerButton}>
-              <Share2 size={24} color={colors.text} />
+              <Share2 size={24} color="#FFFFFF" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.headerButton}>
-              <MoreHorizontal size={24} color={colors.text} />
+              <MoreHorizontal size={24} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
         ),
@@ -213,12 +229,14 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginLeft: 8,
+    padding: 8,
   },
   headerButtons: {
     flexDirection: 'row',
   },
   headerButton: {
     marginHorizontal: 8,
+    padding: 4,
   },
   scrollView: {
     flex: 1,
