@@ -4,7 +4,7 @@ import Stripe from 'stripe';
 import { STRIPE_CONFIG } from "@/constants/stripe";
 
 const stripe = new Stripe(STRIPE_CONFIG.secretKey, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2024-06-20',
 });
 
 export default publicProcedure

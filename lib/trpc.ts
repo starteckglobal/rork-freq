@@ -37,5 +37,4 @@ export const trpcClient = trpc.createClient({
       },
     }),
   ],
-  transformer: superjson,
 });
