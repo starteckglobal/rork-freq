@@ -63,8 +63,8 @@ export default function SignupPaymentModal({ visible, onClose, selectedPlan }: S
 
   const [errors, setErrors] = useState<Partial<FormData>>({});
 
-  const createPaymentIntent = trpc.payment.createPaymentIntent.useMutation();
-  const confirmPayment = trpc.payment.confirmPayment.useMutation();
+  const createPaymentIntentMutation = trpc.payment.createPaymentIntent.useMutation();
+  const confirmPaymentMutation = trpc.payment.confirmPayment.useMutation();
 
   const validateAccountForm = (): boolean => {
     const newErrors: Partial<FormData> = {};
@@ -156,8 +156,10 @@ export default function SignupPaymentModal({ visible, onClose, selectedPlan }: S
     setLoading(true);
     
     try {
+      console.log('Starting payment process...');
+      
       // Create payment intent
-      const paymentIntentResult = await createPaymentIntent.mutateAsync({
+      const paymentIntentResult = await createPaymentIntentMutation.mutateAsync({
         planId: selectedPlan.id,
         amount: selectedPlan.id === 'monthly' ? 999 : selectedPlan.id === 'yearly' ? 10000 : 50000,
         currency: 'usd',
@@ -167,12 +169,14 @@ export default function SignupPaymentModal({ visible, onClose, selectedPlan }: S
         }
       });
 
+      console.log('Payment intent result:', paymentIntentResult);
+
       if (!paymentIntentResult.success) {
         throw new Error(paymentIntentResult.error || 'Failed to create payment intent');
       }
 
       // Simulate payment processing (in real app, you'd use Stripe Elements)
-      const paymentResult = await confirmPayment.mutateAsync({
+      const paymentResult = await confirmPaymentMutation.mutateAsync({
         paymentIntentId: paymentIntentResult.paymentIntentId,
         paymentMethodData: {
           cardNumber: formData.cardNumber.replace(/\s/g, ''),
@@ -182,6 +186,8 @@ export default function SignupPaymentModal({ visible, onClose, selectedPlan }: S
           cardholderName: formData.cardholderName
         }
       });
+
+      console.log('Payment result:', paymentResult);
 
       if (!paymentResult.success) {
         throw new Error(paymentResult.error || 'Payment failed');

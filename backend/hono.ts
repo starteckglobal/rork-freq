@@ -9,11 +9,17 @@ const app = new Hono();
 
 // Enable CORS for all routes with more permissive settings for development
 app.use("*", cors({
-  origin: ['http://localhost:8081', 'http://localhost:19006', 'http://127.0.0.1:8081', 'http://127.0.0.1:19006'],
+  origin: ['http://localhost:8081', 'http://localhost:19006', 'http://127.0.0.1:8081', 'http://127.0.0.1:19006', 'http://localhost:3000'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
 }));
+
+// Add logging middleware
+app.use("*", async (c, next) => {
+  console.log(`${c.req.method} ${c.req.url}`);
+  await next();
+});
 
 // Mount tRPC router at /trpc
 app.use(
