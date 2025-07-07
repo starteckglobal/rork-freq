@@ -502,13 +502,7 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   webPlaylistItem: {
-    width: Platform.select({
-      web: '48%',
-      default: 160,
-    }),
-    maxWidth: Platform.select({
-      web: 200,
-      default: 160,
-    }),
+    width: Platform.OS === 'web' ? '48%' : 160,
+    maxWidth: Platform.OS === 'web' ? 200 : 160,
   },
 });

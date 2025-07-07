@@ -51,14 +51,8 @@ export default function PlaylistCard({ playlist, onPress }: PlaylistCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: Platform.select({
-      web: '100%',
-      default: 160,
-    }),
-    marginRight: Platform.select({
-      web: 0,
-      default: 12,
-    }),
+    width: Platform.OS === 'web' ? '100%' : 160,
+    marginRight: Platform.OS === 'web' ? 0 : 12,
   },
   imageContainer: {
     position: 'relative',
