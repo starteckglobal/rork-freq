@@ -50,9 +50,17 @@ export default function EditProfileScreen() {
       <SafeAreaView style={styles.container}>
         <Stack.Screen options={{
           title: 'Edit Profile',
+          headerStyle: {
+            backgroundColor: '#000000',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <ChevronLeft size={24} color={colors.text} />
+              <ChevronLeft size={24} color="#FFFFFF" />
             </TouchableOpacity>
           ),
         }} />
@@ -169,9 +177,17 @@ export default function EditProfileScreen() {
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{
         title: 'Edit Profile',
+        headerStyle: {
+          backgroundColor: '#000000',
+        },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: {
+          color: '#FFFFFF',
+          fontWeight: '600',
+        },
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <ChevronLeft size={24} color={colors.text} />
+            <ChevronLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
         ),
         headerRight: () => (
@@ -180,8 +196,8 @@ export default function EditProfileScreen() {
             style={styles.saveButton}
             disabled={isSaving}
           >
-            <Save size={20} color={isSaving ? colors.textSecondary : colors.primary} />
-            <Text style={[styles.saveButtonText, { color: isSaving ? colors.textSecondary : colors.primary }]}>
+            <Save size={20} color={isSaving ? colors.textSecondary : "#FFFFFF"} />
+            <Text style={[styles.saveButtonText, { color: isSaving ? colors.textSecondary : "#FFFFFF" }]}>
               {isSaving ? 'Saving...' : 'Save'}
             </Text>
           </TouchableOpacity>

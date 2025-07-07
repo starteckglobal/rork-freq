@@ -40,9 +40,17 @@ export default function TrackDetailScreen() {
       <SafeAreaView style={styles.container}>
         <Stack.Screen options={{ 
           title: 'Track not found',
+          headerStyle: {
+            backgroundColor: '#000000',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <ChevronLeft size={24} color={colors.text} />
+              <ChevronLeft size={24} color="#FFFFFF" />
             </TouchableOpacity>
           ),
         }} />
@@ -106,9 +114,17 @@ export default function TrackDetailScreen() {
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ 
         title: track.title,
+        headerStyle: {
+          backgroundColor: '#000000',
+        },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: {
+          color: '#FFFFFF',
+          fontWeight: '600',
+        },
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <ChevronLeft size={24} color={colors.text} />
+            <ChevronLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
         ),
       }} />

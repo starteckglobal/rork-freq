@@ -156,9 +156,17 @@ export default function AnalyticsScreen() {
       <SafeAreaView style={styles.container}>
         <Stack.Screen options={{ 
           title: 'Analytics',
+          headerStyle: {
+            backgroundColor: '#000000',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <ChevronLeft size={24} color={colors.text} />
+              <ChevronLeft size={24} color="#FFFFFF" />
             </TouchableOpacity>
           ),
         }} />
@@ -183,9 +191,17 @@ export default function AnalyticsScreen() {
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ 
         title: 'Analytics',
+        headerStyle: {
+          backgroundColor: '#000000',
+        },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: {
+          color: '#FFFFFF',
+          fontWeight: '600',
+        },
         headerLeft: () => (
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <ChevronLeft size={24} color={colors.text} />
+            <ChevronLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
         ),
       }} />

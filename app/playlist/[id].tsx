@@ -24,7 +24,8 @@ import {
   Edit, 
   Lock, 
   Globe,
-  Music
+  Music,
+  ChevronLeft
 } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { useUserStore } from '@/store/user-store';
@@ -184,7 +185,17 @@ export default function PlaylistScreen() {
   if (!playlist) {
     return (
       <SafeAreaView style={styles.container}>
-        <Stack.Screen options={{ title: 'Playlist Not Found' }} />
+        <Stack.Screen options={{ 
+          title: 'Playlist Not Found',
+          headerStyle: {
+            backgroundColor: '#000000',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
+        }} />
         <View style={styles.notFoundContainer}>
           <Text style={styles.notFoundText}>Playlist not found</Text>
           <TouchableOpacity 
@@ -203,12 +214,25 @@ export default function PlaylistScreen() {
       <Stack.Screen 
         options={{ 
           title: 'Playlist',
+          headerStyle: {
+            backgroundColor: '#000000',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.back()} style={styles.headerBackButton}>
+              <ChevronLeft size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+          ),
           headerRight: () => (
             <TouchableOpacity
               onPress={() => setShowOptions(!showOptions)}
               style={styles.headerButton}
             >
-              <MoreHorizontal size={24} color={colors.text} />
+              <MoreHorizontal size={24} color="#FFFFFF" />
             </TouchableOpacity>
           ),
         }} 
@@ -389,6 +413,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  headerBackButton: {
+    marginLeft: 8,
+    padding: 8,
   },
   headerButton: {
     padding: 8,
