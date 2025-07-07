@@ -42,7 +42,8 @@ export type AnalyticsEventType =
   | 'data_exported'
   | 'cache_cleared'
   | 'privacy_setting_changed'
-  | 'playback_setting_changed';
+  | 'playback_setting_changed'
+  | 'analytics_time_range_changed';
 
 interface AnalyticsEvent {
   type: AnalyticsEventType;

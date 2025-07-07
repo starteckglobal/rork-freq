@@ -545,7 +545,7 @@ export default function AnalyticsScreen() {
                   verticalLabelRotation={30}
                   style={styles.chart}
                   withInnerLines={false}
-                  withHorizontalLines={false}
+                  withHorizontalLabels={false}
                   fromZero={true}
                 />
               )}
@@ -689,7 +689,7 @@ export default function AnalyticsScreen() {
                   chartConfig={chartConfig}
                   style={styles.chart}
                   withInnerLines={false}
-                  withHorizontalLines={false}
+                  withHorizontalLabels={false}
                   fromZero={true}
                 />
               )}
