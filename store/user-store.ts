@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { generateId } from '@/utils/id';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
+import { Playlist } from '@/types/audio';
 
 export interface User {
   id: string;
@@ -43,19 +44,6 @@ export interface User {
     totalPlaylists: number;
   };
   tracksCount?: number;
-}
-
-export interface Playlist {
-  id: string;
-  name: string;
-  description?: string;
-  coverArt?: string;
-  tracks: string[];
-  createdBy: string;
-  createdAt: string | number;
-  isPrivate: boolean;
-  likes?: number;
-  plays?: number;
 }
 
 export interface UserState {
@@ -145,72 +133,108 @@ const mockPlaylists: Playlist[] = [
   {
     id: 'playlist-1',
     name: 'My Favorites',
+    title: 'My Favorites',
     description: 'A collection of my all-time favorite tracks',
     coverArt: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTV8fG11c2ljfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
     tracks: ['1', '3', '5'],
+    trackIds: ['1', '3', '5'],
     createdBy: 'user-1',
-    createdAt: '2023-02-10T15:30:00Z',
+    creatorId: 'user-1',
+    creatorName: 'Music Lover',
+    trackCount: 3,
     isPrivate: false,
+    isPublic: true,
+    createdAt: Date.now(),
     likes: 45,
     plays: 1200,
   },
   {
     id: 'playlist-2',
     name: 'Chill Vibes',
+    title: 'Chill Vibes',
     description: 'Perfect for relaxing and unwinding',
     coverArt: 'https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MTh8fG11c2ljfGVufDB8fDB8fA%3D%3D&auto=format&fit=crop&w=500&q=60',
     tracks: ['2', '4', '6'],
+    trackIds: ['2', '4', '6'],
     createdBy: 'user-1',
-    createdAt: '2023-03-05T09:15:00Z',
+    creatorId: 'user-1',
+    creatorName: 'Music Lover',
+    trackCount: 3,
     isPrivate: false,
+    isPublic: true,
+    createdAt: Date.now(),
     likes: 32,
     plays: 980,
   },
   {
     id: 'playlist-3',
     name: 'Electronic Dreams',
+    title: 'Electronic Dreams',
     description: 'Best electronic tracks from new artists',
     coverArt: 'https://images.unsplash.com/photo-1571330735066-03aaa9429d89?q=80&w=500',
     tracks: ['9', '10', '11', '12'],
+    trackIds: ['9', '10', '11', '12'],
     createdBy: 'user-1',
-    createdAt: '2023-03-15T10:20:00Z',
+    creatorId: 'user-1',
+    creatorName: 'Music Lover',
+    trackCount: 4,
     isPrivate: false,
+    isPublic: true,
+    createdAt: Date.now(),
     likes: 28,
     plays: 750,
   },
   {
     id: 'playlist-4',
     name: 'Pop Fusion',
+    title: 'Pop Fusion',
     description: 'Modern pop with electronic fusion',
     coverArt: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?q=80&w=500',
     tracks: ['13', '14', '15'],
+    trackIds: ['13', '14', '15'],
     createdBy: 'user-1',
-    createdAt: '2023-04-01T14:30:00Z',
+    creatorId: 'user-1',
+    creatorName: 'Music Lover',
+    trackCount: 3,
     isPrivate: false,
+    isPublic: true,
+    createdAt: Date.now(),
     likes: 35,
     plays: 920,
   },
   {
     id: 'playlist-5',
     name: 'Deep House Sessions',
+    title: 'Deep House Sessions',
     description: 'Deep house tracks for late night vibes',
     coverArt: 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=500',
     tracks: ['16', '17', '18', '19'],
+    trackIds: ['16', '17', '18', '19'],
     createdBy: 'user-1',
-    createdAt: '2023-04-10T18:45:00Z',
+    creatorId: 'user-1',
+    creatorName: 'Music Lover',
+    trackCount: 4,
     isPrivate: false,
+    isPublic: true,
+    createdAt: Date.now(),
     likes: 42,
     plays: 1100,
   },
   {
     id: 'playlist-6',
     name: 'Eastern Vibes',
+    title: 'Eastern Vibes',
     description: 'Traditional meets modern',
     coverArt: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=500',
     tracks: ['20'],
+    trackIds: ['20'],
     createdBy: 'user-1',
-    createdAt: '2023-04-15T12:00:00Z',
+    creatorId: 'user-1',
+    creatorName: 'Music Lover',
+    trackCount: 1,
     isPrivate: false,
+    isPublic: true,
+    createdAt: Date.now(),
     likes: 18,
     plays: 450,
   },
@@ -596,12 +620,18 @@ export const useUserStore = create<UserState>()(
         const newPlaylist: Playlist = {
           id: generateId(),
           name: name.trim(),
+          title: name.trim(),
           description: description.trim(),
           coverArt: coverArt || undefined,
           tracks: [],
+          trackIds: [],
           createdBy: currentUser.id,
-          createdAt: new Date().toISOString(),
+          creatorId: currentUser.id,
+          creatorName: currentUser.displayName,
+          trackCount: 0,
           isPrivate,
+          isPublic: !isPrivate,
+          createdAt: Date.now(),
           likes: 0,
           plays: 0,
         };
@@ -649,6 +679,20 @@ export const useUserStore = create<UserState>()(
         if (userPlaylists[playlistIndex].createdBy !== currentUser.id) return;
         
         const updatedPlaylist = { ...userPlaylists[playlistIndex], ...updates };
+        
+        // Ensure title matches name if name is updated
+        if (updates.name) {
+          updatedPlaylist.title = updates.name;
+        }
+        
+        // Update trackCount if tracks are updated
+        if (updates.tracks || updates.trackIds) {
+          const trackList = updates.tracks || updates.trackIds || updatedPlaylist.tracks;
+          updatedPlaylist.trackCount = trackList.length;
+          updatedPlaylist.tracks = trackList;
+          updatedPlaylist.trackIds = trackList;
+        }
+        
         const updatedPlaylists = [...userPlaylists];
         updatedPlaylists[playlistIndex] = updatedPlaylist;
         
@@ -728,7 +772,12 @@ export const useUserStore = create<UserState>()(
         }
         
         const updatedTracks = [...currentPlaylists[playlistIndex].tracks, trackId];
-        const updatedPlaylist = { ...currentPlaylists[playlistIndex], tracks: updatedTracks };
+        const updatedPlaylist = { 
+          ...currentPlaylists[playlistIndex], 
+          tracks: updatedTracks,
+          trackIds: updatedTracks,
+          trackCount: updatedTracks.length
+        };
         const updatedPlaylists = [...currentPlaylists];
         updatedPlaylists[playlistIndex] = updatedPlaylist;
         
@@ -761,7 +810,12 @@ export const useUserStore = create<UserState>()(
         if (currentPlaylists[playlistIndex].createdBy !== currentUser.id) return;
         
         const updatedTracks = currentPlaylists[playlistIndex].tracks.filter(id => id !== trackId);
-        const updatedPlaylist = { ...currentPlaylists[playlistIndex], tracks: updatedTracks };
+        const updatedPlaylist = { 
+          ...currentPlaylists[playlistIndex], 
+          tracks: updatedTracks,
+          trackIds: updatedTracks,
+          trackCount: updatedTracks.length
+        };
         const updatedPlaylists = [...currentPlaylists];
         updatedPlaylists[playlistIndex] = updatedPlaylist;
         
