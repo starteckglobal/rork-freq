@@ -205,12 +205,18 @@ export default function MessagesScreen() {
       <SafeAreaView style={styles.container}>
         <Stack.Screen options={{ 
           title: 'Messages',
+          headerStyle: {
+            backgroundColor: '#000000',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
           headerLeft: () => (
-            <Image 
-              source={{ uri: freqLogoUrl }} 
-              style={styles.headerLogo}
-              resizeMode="contain"
-            />
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <ChevronLeft size={24} color="#FFFFFF" />
+            </TouchableOpacity>
           ),
         }} />
         
@@ -241,13 +247,17 @@ export default function MessagesScreen() {
       <StatusBar barStyle="light-content" />
       <Stack.Screen options={{ 
         title: 'Messages',
+        headerStyle: {
+          backgroundColor: '#000000',
+        },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: {
+          color: '#FFFFFF',
+          fontWeight: '600',
+        },
         headerLeft: () => (
-          <TouchableOpacity onPress={() => router.push('/')}>
-            <Image 
-              source={{ uri: freqLogoUrl }} 
-              style={styles.headerLogo}
-              resizeMode="contain"
-            />
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ChevronLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
         ),
         headerRight: () => (
@@ -356,10 +366,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  headerLogo: {
-    width: 30,
-    height: 30,
-    marginLeft: 16,
+  backButton: {
+    marginLeft: 8,
+    padding: 8,
   },
   headerRight: {
     flexDirection: 'row',

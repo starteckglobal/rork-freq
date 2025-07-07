@@ -202,9 +202,17 @@ export default function ConversationScreen() {
       <SafeAreaView style={styles.container}>
         <Stack.Screen options={{ 
           title: 'Conversation not found',
+          headerStyle: {
+            backgroundColor: '#000000',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.push('/messages')} style={styles.backButton}>
-              <ChevronLeft size={24} color={colors.text} />
+              <ChevronLeft size={24} color="#FFFFFF" />
             </TouchableOpacity>
           ),
         }} />
@@ -222,9 +230,17 @@ export default function ConversationScreen() {
       <SafeAreaView style={styles.container}>
         <Stack.Screen options={{ 
           title: 'User not found',
+          headerStyle: {
+            backgroundColor: '#000000',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
           headerLeft: () => (
             <TouchableOpacity onPress={() => router.push('/messages')} style={styles.backButton}>
-              <ChevronLeft size={24} color={colors.text} />
+              <ChevronLeft size={24} color="#FFFFFF" />
             </TouchableOpacity>
           ),
         }} />
@@ -491,24 +507,32 @@ export default function ConversationScreen() {
             </View>
           </TouchableOpacity>
         ),
+        headerStyle: {
+          backgroundColor: '#000000',
+        },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: {
+          color: '#FFFFFF',
+          fontWeight: '600',
+        },
         headerLeft: () => (
           <TouchableOpacity 
             style={styles.backButton}
             onPress={() => router.push('/messages')}
           >
-            <ChevronLeft size={24} color={colors.text} />
+            <ChevronLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
         ),
         headerRight: () => (
           <View style={styles.headerActions}>
             <TouchableOpacity style={styles.headerActionButton}>
-              <Phone size={20} color={colors.text} />
+              <Phone size={20} color="#FFFFFF" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.headerActionButton}>
-              <Video size={20} color={colors.text} />
+              <Video size={20} color="#FFFFFF" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.headerActionButton}>
-              <Info size={20} color={colors.text} />
+              <Info size={20} color="#FFFFFF" />
             </TouchableOpacity>
           </View>
         ),
@@ -679,7 +703,7 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   headerUsername: {
-    color: colors.text,
+    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },

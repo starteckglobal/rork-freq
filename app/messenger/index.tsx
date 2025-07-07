@@ -670,12 +670,18 @@ export default function MessengerScreen() {
       <SafeAreaView style={styles.container}>
         <Stack.Screen options={{ 
           title: 'Messages',
+          headerStyle: {
+            backgroundColor: '#000000',
+          },
+          headerTintColor: '#FFFFFF',
+          headerTitleStyle: {
+            color: '#FFFFFF',
+            fontWeight: '600',
+          },
           headerLeft: () => (
-            <Image 
-              source={{ uri: freqLogoUrl }} 
-              style={styles.headerLogo}
-              resizeMode="contain"
-            />
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+              <ChevronLeft size={24} color="#FFFFFF" />
+            </TouchableOpacity>
           ),
         }} />
         
@@ -701,13 +707,17 @@ export default function MessengerScreen() {
       <Stack.Screen options={{ 
         title: selectedConversation ? '' : 'Messages',
         headerShown: !selectedConversation,
+        headerStyle: {
+          backgroundColor: '#000000',
+        },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: {
+          color: '#FFFFFF',
+          fontWeight: '600',
+        },
         headerLeft: () => (
-          <TouchableOpacity onPress={() => router.push('/')}>
-            <Image 
-              source={{ uri: freqLogoUrl }} 
-              style={styles.headerLogo}
-              resizeMode="contain"
-            />
+          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+            <ChevronLeft size={24} color="#FFFFFF" />
           </TouchableOpacity>
         ),
       }} />
@@ -735,10 +745,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  headerLogo: {
-    width: 30,
-    height: 30,
-    marginLeft: 16,
+  backButton: {
+    marginLeft: 8,
+    padding: 8,
   },
   content: {
     flex: 1,
@@ -872,10 +881,6 @@ const styles = StyleSheet.create({
   conversationContainer: {
     flex: 1,
     ...(Platform.OS === 'web' && { flex: 2 }),
-  },
-  backButton: {
-    marginRight: 12,
-    padding: 8,
   },
   userInfoContainer: {
     flex: 1,
