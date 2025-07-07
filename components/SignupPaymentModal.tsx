@@ -193,10 +193,8 @@ export default function SignupPaymentModal({ visible, onClose, selectedPlan }: S
         throw new Error(paymentResult.error || 'Payment failed');
       }
 
-      // Register user
+      // Register user - only pass properties that exist in User interface
       const registrationSuccess = await register({
-        firstName: formData.firstName,
-        lastName: formData.lastName,
         email: formData.email,
         username: formData.username,
         displayName: `${formData.firstName} ${formData.lastName}`
