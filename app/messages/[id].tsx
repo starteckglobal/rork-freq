@@ -35,7 +35,7 @@ import {
 } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { users } from '@/mocks/users';
-import { defaultAvatarUri } from '@/constants/images';
+import { defaultAvatarUri, freqLogoUrl } from '@/constants/images';
 import { useUserStore } from '@/store/user-store';
 import * as ImagePicker from 'expo-image-picker';
 import EmojiSelector from '@/components/EmojiSelector';
@@ -516,12 +516,21 @@ export default function ConversationScreen() {
           fontWeight: '600',
         },
         headerLeft: () => (
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => router.push('/messages')}
-          >
-            <ChevronLeft size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+          <View style={styles.headerLeftContainer}>
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => router.push('/messages')}
+            >
+              <ChevronLeft size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/')}>
+              <Image 
+                source={{ uri: freqLogoUrl }} 
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
         ),
         headerRight: () => (
           <View style={styles.headerActions}>
@@ -688,9 +697,18 @@ const styles = StyleSheet.create({
   keyboardAvoidingView: {
     flex: 1,
   },
+  headerLeftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   backButton: {
     marginLeft: 8,
     padding: 8,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    marginLeft: 8,
   },
   headerTitleContainer: {
     flexDirection: 'row',

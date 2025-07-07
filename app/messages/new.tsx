@@ -19,7 +19,7 @@ import {
 } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { users } from '@/mocks/users';
-import { defaultAvatarUri } from '@/constants/images';
+import { defaultAvatarUri, freqLogoUrl } from '@/constants/images';
 
 export default function NewMessageScreen() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,13 +61,30 @@ export default function NewMessageScreen() {
       <StatusBar barStyle="light-content" />
       <Stack.Screen options={{ 
         title: 'New Message',
+        headerStyle: {
+          backgroundColor: '#000000',
+        },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: {
+          color: '#FFFFFF',
+          fontWeight: '600',
+        },
         headerLeft: () => (
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={() => router.push('/messages')}
-          >
-            <ChevronLeft size={24} color={colors.text} />
-          </TouchableOpacity>
+          <View style={styles.headerLeftContainer}>
+            <TouchableOpacity 
+              style={styles.backButton}
+              onPress={() => router.push('/messages')}
+            >
+              <ChevronLeft size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/')}>
+              <Image 
+                source={{ uri: freqLogoUrl }} 
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
         ),
       }} />
       
@@ -111,9 +128,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  headerLeftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   backButton: {
     marginLeft: 8,
     padding: 8,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    marginLeft: 8,
   },
   content: {
     flex: 1,

@@ -528,6 +528,14 @@ export default function MessengerScreen() {
             <ChevronLeft size={24} color={colors.text} />
           </TouchableOpacity>
           
+          <TouchableOpacity onPress={() => router.push('/')}>
+            <Image 
+              source={{ uri: freqLogoUrl }} 
+              style={styles.logo}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+          
           <TouchableOpacity 
             style={styles.userInfoContainer}
             onPress={() => router.push(`/profile/${user.id}`)}
@@ -679,9 +687,18 @@ export default function MessengerScreen() {
             fontWeight: '600',
           },
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-              <ChevronLeft size={24} color="#FFFFFF" />
-            </TouchableOpacity>
+            <View style={styles.headerLeftContainer}>
+              <TouchableOpacity onPress={() => router.push('/')} style={styles.backButton}>
+                <ChevronLeft size={24} color="#FFFFFF" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/')}>
+                <Image 
+                  source={{ uri: freqLogoUrl }} 
+                  style={styles.logo}
+                  resizeMode="contain"
+                />
+              </TouchableOpacity>
+            </View>
           ),
         }} />
         
@@ -716,9 +733,18 @@ export default function MessengerScreen() {
           fontWeight: '600',
         },
         headerLeft: () => (
-          <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <ChevronLeft size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+          <View style={styles.headerLeftContainer}>
+            <TouchableOpacity onPress={() => router.push('/')} style={styles.backButton}>
+              <ChevronLeft size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/')}>
+              <Image 
+                source={{ uri: freqLogoUrl }} 
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
         ),
       }} />
       
@@ -745,9 +771,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  headerLeftContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   backButton: {
     marginLeft: 8,
     padding: 8,
+  },
+  logo: {
+    width: 32,
+    height: 32,
+    marginLeft: 8,
   },
   content: {
     flex: 1,
