@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Platform } from 'react-native';
 import { Play } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { Playlist } from '@/types/audio';
@@ -51,13 +51,19 @@ export default function PlaylistCard({ playlist, onPress }: PlaylistCardProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: 160,
-    marginRight: 12,
+    width: Platform.select({
+      web: '100%',
+      default: 160,
+    }),
+    marginRight: Platform.select({
+      web: 0,
+      default: 12,
+    }),
   },
   imageContainer: {
     position: 'relative',
-    width: 160,
-    height: 160,
+    width: '100%',
+    aspectRatio: 1,
     borderRadius: 8,
     overflow: 'hidden',
     marginBottom: 8,

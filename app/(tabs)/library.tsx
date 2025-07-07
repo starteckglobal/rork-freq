@@ -111,6 +111,46 @@ export default function LibraryScreen() {
     }
   };
   
+  // Render playlists in a grid format for web
+  const renderPlaylistsGrid = () => {
+    if (Platform.OS === 'web') {
+      return (
+        <View style={styles.webPlaylistGrid}>
+          {displayPlaylists.map((playlist) => (
+            <View key={playlist.id} style={styles.webPlaylistItem}>
+              <PlaylistCard
+                playlist={playlist}
+                onPress={() => {
+                  analyticsEventBus.publish('custom_event', {
+                    category: 'content_interaction',
+                    action: 'playlist_click',
+                    playlist_id: playlist.id,
+                    playlist_name: playlist.name,
+                    source: 'library_screen'
+                  });
+                  
+                  router.push(`/playlist/${playlist.id}`);
+                }}
+              />
+            </View>
+          ))}
+        </View>
+      );
+    } else {
+      return (
+        <FlatList
+          data={displayPlaylists}
+          renderItem={renderPlaylistItem}
+          keyExtractor={(item) => item.id}
+          numColumns={2}
+          columnWrapperStyle={displayPlaylists.length > 1 ? styles.playlistRow : undefined}
+          scrollEnabled={false}
+          contentContainerStyle={styles.playlistGrid}
+        />
+      );
+    }
+  };
+  
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
@@ -224,15 +264,7 @@ export default function LibraryScreen() {
                   <Text style={styles.createPlaylistText}>Create Playlist</Text>
                 </TouchableOpacity>
                 
-                <FlatList
-                  data={displayPlaylists}
-                  renderItem={renderPlaylistItem}
-                  keyExtractor={(item) => item.id}
-                  numColumns={2}
-                  columnWrapperStyle={displayPlaylists.length > 1 ? styles.playlistRow : undefined}
-                  scrollEnabled={false}
-                  contentContainerStyle={styles.playlistGrid}
-                />
+                {renderPlaylistsGrid()}
               </View>
             )}
           </View>
@@ -460,5 +492,23 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 18,
     fontWeight: '600',
+  },
+  // Web-specific styles
+  webPlaylistGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    paddingTop: 16,
+    gap: 16,
+  },
+  webPlaylistItem: {
+    width: Platform.select({
+      web: '48%',
+      default: 160,
+    }),
+    maxWidth: Platform.select({
+      web: 200,
+      default: 160,
+    }),
   },
 });
