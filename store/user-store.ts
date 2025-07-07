@@ -22,6 +22,9 @@ export interface User {
     startDate: string;
     endDate: string;
     autoRenew: boolean;
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+    status: 'active' | 'cancelled' | 'past_due' | 'incomplete';
   };
   socialLinks?: {
     website?: string;
@@ -78,6 +81,7 @@ export interface UserState {
   
   // Subscription
   isSubscribed: () => boolean;
+  hasFeatureAccess: (feature: string) => boolean;
   
   // Tracks
   likeTrack: (trackId: string) => void;
@@ -100,7 +104,9 @@ export interface UserState {
   cancelPremium: () => void;
   
   // Subscription
-  subscribeToPlan: (planId: string) => void;
+  subscribeToPlan: (planId: string, stripeData?: { customerId?: string; subscriptionId?: string }) => void;
+  cancelSubscription: () => void;
+  updateSubscriptionStatus: (status: 'active' | 'cancelled' | 'past_due' | 'incomplete') => void;
 }
 
 // Mock user for development
@@ -209,6 +215,40 @@ const mockPlaylists: Playlist[] = [
     plays: 450,
   },
 ];
+
+// Feature access mapping based on subscription plans
+const PLAN_FEATURES = {
+  monthly: [
+    'basic_tools',
+    'basic_analysis',
+    'standard_exports',
+    'limited_storage',
+    'email_support'
+  ],
+  yearly: [
+    'basic_tools',
+    'advanced_analysis',
+    'high_quality_exports',
+    'increased_storage',
+    'priority_support',
+    'exclusive_content',
+    'collaboration_tools'
+  ],
+  premium: [
+    'basic_tools',
+    'professional_analysis',
+    'lossless_exports',
+    'unlimited_storage',
+    'priority_24_7_support',
+    'early_access',
+    'consultation',
+    'commercial_rights',
+    'advanced_collaboration',
+    'ai_mastering',
+    'spatial_audio',
+    'stem_separation'
+  ]
+};
 
 export const useUserStore = create<UserState>()(
   persist(
@@ -319,7 +359,7 @@ export const useUserStore = create<UserState>()(
         set({
           isLoggedIn: true,
           currentUser: newUser,
-          userPlaylists: [],
+          userPlaylists: [...mockPlaylists], // Add mock playlists for new users
           showLoginModal: false,
         });
         
@@ -456,7 +496,24 @@ export const useUserStore = create<UserState>()(
         if (currentUser.subscription) {
           const now = new Date();
           const endDate = new Date(currentUser.subscription.endDate);
-          return endDate > now;
+          return endDate > now && currentUser.subscription.status === 'active';
+        }
+        
+        return false;
+      },
+      
+      // Feature access control
+      hasFeatureAccess: (feature) => {
+        const { currentUser } = get();
+        if (!currentUser) return false;
+        
+        // If user has premium, they have access to all features
+        if (currentUser.isPremium) return true;
+        
+        // Check subscription-based access
+        if (currentUser.subscription && currentUser.subscription.status === 'active') {
+          const planFeatures = PLAN_FEATURES[currentUser.subscription.plan as keyof typeof PLAN_FEATURES] || [];
+          return planFeatures.includes(feature);
         }
         
         return false;
@@ -804,8 +861,8 @@ export const useUserStore = create<UserState>()(
         });
       },
       
-      // Subscription
-      subscribeToPlan: (planId) => {
+      // Subscription management
+      subscribeToPlan: (planId, stripeData = {}) => {
         const { currentUser } = get();
         
         if (!currentUser) {
@@ -816,7 +873,13 @@ export const useUserStore = create<UserState>()(
         // Create subscription dates
         const startDate = new Date().toISOString();
         const endDate = new Date();
-        endDate.setFullYear(endDate.getFullYear() + 1); // Default to 1 year subscription
+        
+        // Set end date based on plan
+        if (planId === 'monthly') {
+          endDate.setMonth(endDate.getMonth() + 1);
+        } else {
+          endDate.setFullYear(endDate.getFullYear() + 1);
+        }
         
         const updatedUser = { 
           ...currentUser, 
@@ -825,7 +888,10 @@ export const useUserStore = create<UserState>()(
             plan: planId,
             startDate,
             endDate: endDate.toISOString(),
-            autoRenew: true
+            autoRenew: true,
+            status: 'active' as const,
+            stripeCustomerId: stripeData.customerId,
+            stripeSubscriptionId: stripeData.subscriptionId
           }
         };
         
@@ -836,7 +902,57 @@ export const useUserStore = create<UserState>()(
           category: 'subscription',
           action: 'subscribe',
           user_id: currentUser.id,
-          plan_id: planId
+          plan_id: planId,
+          stripe_customer_id: stripeData.customerId
+        });
+      },
+      
+      cancelSubscription: () => {
+        const { currentUser } = get();
+        
+        if (!currentUser || !currentUser.subscription) return;
+        
+        const updatedUser = {
+          ...currentUser,
+          subscription: {
+            ...currentUser.subscription,
+            status: 'cancelled' as const,
+            autoRenew: false
+          }
+        };
+        
+        set({ currentUser: updatedUser });
+        
+        // Track cancellation
+        analyticsEventBus.publish('custom_event', {
+          category: 'subscription',
+          action: 'cancel',
+          user_id: currentUser.id,
+          plan_id: currentUser.subscription.plan
+        });
+      },
+      
+      updateSubscriptionStatus: (status) => {
+        const { currentUser } = get();
+        
+        if (!currentUser || !currentUser.subscription) return;
+        
+        const updatedUser = {
+          ...currentUser,
+          subscription: {
+            ...currentUser.subscription,
+            status
+          }
+        };
+        
+        set({ currentUser: updatedUser });
+        
+        // Track status update
+        analyticsEventBus.publish('custom_event', {
+          category: 'subscription',
+          action: 'status_update',
+          user_id: currentUser.id,
+          new_status: status
         });
       }
     }),

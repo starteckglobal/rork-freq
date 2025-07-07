@@ -80,6 +80,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { tracks } from '@/mocks/tracks';
 import { usePlayerStore } from '@/store/player-store';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import SignupPaymentModal from '@/components/SignupPaymentModal';
 
 const { width } = Dimensions.get('window');
 
@@ -373,7 +374,7 @@ const catalogData = tracks.slice(0, 6).map(track => ({
 
 export default function SyncLabScreen() {
   const router = useRouter();
-  const { isLoggedIn, setShowLoginModal, currentUser, subscribeToPlan } = useUserStore();
+  const { isLoggedIn, setShowLoginModal, currentUser, subscribeToPlan, hasFeatureAccess } = useUserStore();
   const { currentTrack, isMinimized } = usePlayerStore();
   const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanId>('yearly');
   const [loading, setLoading] = useState<boolean>(false);
@@ -396,6 +397,7 @@ export default function SyncLabScreen() {
   const [selectedSubmissionTracks, setSelectedSubmissionTracks] = useState<string[]>([]);
   const [submissionNote, setSubmissionNote] = useState<string>('');
   const [showSubmissionForm, setShowSubmissionForm] = useState<boolean>(false);
+  const [showSignupModal, setShowSignupModal] = useState<boolean>(false);
   const insets = useSafeAreaInsets();
   
   // Check if user is subscribed
@@ -424,10 +426,13 @@ export default function SyncLabScreen() {
   
   const handleSubscribe = (planId: SubscriptionPlanId) => {
     if (!isLoggedIn) {
-      setShowLoginModal(true);
+      // Show signup modal instead of login modal
+      setSelectedPlan(planId);
+      setShowSignupModal(true);
       return;
     }
     
+    // If user is already logged in, proceed with subscription
     setSelectedPlan(planId);
     setLoading(true);
     
@@ -1576,7 +1581,9 @@ export default function SyncLabScreen() {
                   onPress={() => {
                     Alert.alert(
                       opportunity.title,
-                      `Requirements: ${opportunity.requirements}\n\nSubmission Process: ${opportunity.submissionProcess}`,
+                      `Requirements: ${opportunity.requirements}
+
+Submission Process: ${opportunity.submissionProcess}`,
                       [
                         { text: "Cancel", style: "cancel" },
                         { text: "Apply Now", onPress: () => handleApplyToOpportunity(opportunity.id) }
@@ -1919,6 +1926,12 @@ export default function SyncLabScreen() {
         
         {!isLoggedIn && renderSubscriptionSection()}
       </ScrollView>
+
+      <SignupPaymentModal
+        visible={showSignupModal}
+        onClose={() => setShowSignupModal(false)}
+        selectedPlan={subscriptionPlans.find(p => p.id === selectedPlan) || subscriptionPlans[1]}
+      />
     </SafeAreaView>
   );
 }
