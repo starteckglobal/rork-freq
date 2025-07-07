@@ -19,6 +19,8 @@ export default publicProcedure
   }))
   .mutation(async ({ input }) => {
     try {
+      console.log('Creating payment intent for:', input);
+
       // Create or retrieve customer
       const customers = await stripe.customers.list({
         email: input.customerInfo.email,
@@ -28,6 +30,7 @@ export default publicProcedure
       let customer;
       if (customers.data.length > 0) {
         customer = customers.data[0];
+        console.log('Found existing customer:', customer.id);
       } else {
         customer = await stripe.customers.create({
           email: input.customerInfo.email,
@@ -36,6 +39,7 @@ export default publicProcedure
             planId: input.planId
           }
         });
+        console.log('Created new customer:', customer.id);
       }
 
       // Create payment intent
@@ -51,6 +55,8 @@ export default publicProcedure
           enabled: true,
         },
       });
+
+      console.log('Payment intent created:', paymentIntent.id);
 
       return {
         success: true,

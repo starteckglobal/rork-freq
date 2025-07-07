@@ -1,12 +1,8 @@
 import { z } from "zod";
 import { publicProcedure } from "../../create-context";
-import Stripe from 'stripe';
-import { STRIPE_CONFIG } from "@/constants/stripe";
 
-const stripe = new Stripe(STRIPE_CONFIG.secretKey, {
-  apiVersion: '2024-12-18.acacia',
-});
-
+// For demo purposes, we'll simulate payment confirmation
+// In a real app, you'd integrate with Stripe Elements properly
 export default publicProcedure
   .input(z.object({
     paymentIntentId: z.string(),
@@ -20,42 +16,34 @@ export default publicProcedure
   }))
   .mutation(async ({ input }) => {
     try {
+      console.log('Confirming payment for:', input.paymentIntentId);
+
+      // Simulate payment processing
       // In a real implementation, you would use Stripe Elements on the frontend
-      // This is a simplified version for demo purposes
+      // and handle the payment confirmation through Stripe's secure methods
       
-      // Create payment method
-      const paymentMethod = await stripe.paymentMethods.create({
-        type: 'card',
-        card: {
-          number: input.paymentMethodData.cardNumber,
-          exp_month: parseInt(input.paymentMethodData.expiryMonth),
-          exp_year: parseInt(`20${input.paymentMethodData.expiryYear}`),
-          cvc: input.paymentMethodData.cvv,
-        },
-        billing_details: {
-          name: input.paymentMethodData.cardholderName,
-        },
-      });
+      // For demo purposes, we'll simulate a successful payment
+      // You can add validation logic here (e.g., check card number format)
+      
+      const isValidCard = input.paymentMethodData.cardNumber.replace(/\s/g, '').length >= 16;
+      const isValidExpiry = /^\d{2}\/\d{2}$/.test(`${input.paymentMethodData.expiryMonth}/${input.paymentMethodData.expiryYear}`);
+      const isValidCvv = input.paymentMethodData.cvv.length >= 3;
 
-      // Confirm payment intent
-      const confirmedPayment = await stripe.paymentIntents.confirm(input.paymentIntentId, {
-        payment_method: paymentMethod.id,
-        return_url: 'https://your-app.com/return', // This would be your app's return URL
-      });
-
-      if (confirmedPayment.status === 'succeeded') {
-        return {
-          success: true,
-          paymentIntentId: confirmedPayment.id,
-          status: confirmedPayment.status
-        };
-      } else {
+      if (!isValidCard || !isValidExpiry || !isValidCvv) {
         return {
           success: false,
-          error: 'Payment requires additional authentication',
-          status: confirmedPayment.status
+          error: 'Invalid payment information'
         };
       }
+
+      // Simulate successful payment
+      console.log('Payment confirmed successfully');
+      
+      return {
+        success: true,
+        paymentIntentId: input.paymentIntentId,
+        status: 'succeeded'
+      };
     } catch (error) {
       console.error('Payment confirmation error:', error);
       return {
