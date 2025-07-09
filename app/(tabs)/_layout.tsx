@@ -16,11 +16,12 @@ import MiniPlayer from '@/components/MiniPlayer';
 import FullPlayer from '@/components/FullPlayer';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import LoginModal from '@/components/LoginModal';
 
 const { width, height } = Dimensions.get('window');
 
 export default function TabLayout() {
-  const { isLoggedIn } = useUserStore();
+  const { isLoggedIn, showLoginModal, setShowLoginModal } = useUserStore();
   const { currentTrack, isMinimized } = usePlayerStore();
   const analytics = useAnalytics();
   const insets = useSafeAreaInsets();
@@ -174,6 +175,12 @@ export default function TabLayout() {
         </View>
       )}
       {currentTrack && !isMinimized && <FullPlayer />}
+      
+      {/* Login Modal */}
+      <LoginModal 
+        visible={showLoginModal} 
+        onClose={() => setShowLoginModal(false)} 
+      />
     </View>
   );
 }

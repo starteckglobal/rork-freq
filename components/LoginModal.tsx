@@ -11,15 +11,17 @@ import {
   BackHandler,
   Image,
   Alert,
-  Dimensions
+  Dimensions,
+  ScrollView
 } from 'react-native';
-import { X, Eye, EyeOff, Mail, Lock, User } from 'lucide-react-native';
+import { X, Eye, EyeOff, Mail, Lock, User, Camera, Upload } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { useUserStore } from '@/store/user-store';
 import { freqLogo } from '@/constants/images';
 import { analytics } from '@/services/analytics';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
 import { useRouter } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 
 interface LoginModalProps {
   visible: boolean;
@@ -35,8 +37,11 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
   const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
+  const [bio, setBio] = useState('');
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
   
   const { login, register, updateProfile } = useUserStore();
   
@@ -103,7 +108,7 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
     setError('');
     
     if (!email || !password || !username || !displayName) {
-      setError('Please fill in all fields');
+      setError('Please fill in all required fields');
       return;
     }
     
@@ -117,11 +122,18 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
       return;
     }
     
+    if (username.length < 3) {
+      setError('Username must be at least 3 characters');
+      return;
+    }
+    
     // Use the register function from the store
     register({
       username,
       email,
-      displayName
+      displayName,
+      bio,
+      avatarUrl: profileImage
     }, password)
       .then(success => {
         if (success) {
@@ -130,6 +142,8 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
             category: 'user',
             action: 'registration',
             username,
+            has_profile_image: !!profileImage,
+            has_bio: !!bio,
           });
           
           // Navigate to SyncLab after successful registration
@@ -156,7 +170,85 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
     if (mode === 'login') {
       setEmail('');
       setPassword('');
+    } else {
+      setUsername('');
+      setDisplayName('');
+      setBio('');
+      setProfileImage(null);
     }
+  };
+  
+  const pickImage = async () => {
+    try {
+      setIsUploading(true);
+      
+      // Request permission
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (permissionResult.granted === false) {
+        Alert.alert('Permission Required', 'Permission to access camera roll is required!');
+        return;
+      }
+      
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      
+      if (!result.canceled && result.assets[0]) {
+        setProfileImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert('Error', 'Failed to pick image. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  const takePhoto = async () => {
+    try {
+      setIsUploading(true);
+      
+      // Request permission
+      const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
+      
+      if (permissionResult.granted === false) {
+        Alert.alert('Permission Required', 'Permission to access camera is required!');
+        return;
+      }
+      
+      // Launch camera
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+      
+      if (!result.canceled && result.assets[0]) {
+        setProfileImage(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error taking photo:', error);
+      Alert.alert('Error', 'Failed to take photo. Please try again.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  const showImagePicker = () => {
+    Alert.alert(
+      'Select Profile Picture',
+      'Choose how you want to add your profile picture',
+      [
+        { text: 'Camera', onPress: takePhoto },
+        { text: 'Photo Library', onPress: pickImage },
+        { text: 'Cancel', style: 'cancel' }
+      ]
+    );
   };
   
   const handleDemoLogin = () => {
@@ -176,7 +268,17 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
         style={styles.container}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <View style={[styles.modalContent, { width: width > 500 ? 400 : width * 0.9 }]}>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContainer}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={[styles.modalContent, { 
+            width: Platform.select({
+              web: Math.min(450, width * 0.9),
+              default: width > 500 ? 400 : width * 0.9
+            })
+          }]}>
           <View style={styles.header}>
             <TouchableOpacity
               style={styles.closeButton}
@@ -211,11 +313,41 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
           <View style={styles.form}>
             {mode === 'register' && (
               <>
+                {/* Profile Picture Section */}
+                <View style={styles.profilePictureSection}>
+                  <Text style={styles.sectionLabel}>Profile Picture</Text>
+                  <View style={styles.profilePictureContainer}>
+                    <TouchableOpacity 
+                      style={styles.profilePictureButton}
+                      onPress={showImagePicker}
+                      disabled={isUploading}
+                    >
+                      {profileImage ? (
+                        <Image source={{ uri: profileImage }} style={styles.profilePicture} />
+                      ) : (
+                        <View style={styles.profilePicturePlaceholder}>
+                          <Camera size={32} color={colors.textSecondary} />
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                      style={styles.uploadButton}
+                      onPress={showImagePicker}
+                      disabled={isUploading}
+                    >
+                      <Upload size={16} color={colors.primary} />
+                      <Text style={styles.uploadButtonText}>
+                        {isUploading ? 'Uploading...' : profileImage ? 'Change Photo' : 'Add Photo'}
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+                
                 <View style={styles.inputContainer}>
                   <User size={20} color={colors.textSecondary} />
                   <TextInput
                     style={styles.input}
-                    placeholder="Display Name"
+                    placeholder="Display Name *"
                     placeholderTextColor={colors.textTertiary}
                     value={displayName}
                     onChangeText={setDisplayName}
@@ -227,34 +359,63 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
                   <User size={20} color={colors.textSecondary} />
                   <TextInput
                     style={styles.input}
-                    placeholder="Username"
+                    placeholder="Username *"
                     placeholderTextColor={colors.textTertiary}
                     value={username}
                     onChangeText={setUsername}
                     autoCapitalize="none"
                   />
                 </View>
+                
+                <View style={styles.inputContainer}>
+                  <Mail size={20} color={colors.textSecondary} />
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Email *"
+                    placeholderTextColor={colors.textTertiary}
+                    value={email}
+                    onChangeText={setEmail}
+                    keyboardType="email-address"
+                    autoCapitalize="none"
+                  />
+                </View>
+                
+                <View style={[styles.inputContainer, styles.bioContainer]}>
+                  <User size={20} color={colors.textSecondary} style={styles.bioIcon} />
+                  <TextInput
+                    style={[styles.input, styles.bioInput]}
+                    placeholder="Bio (optional)"
+                    placeholderTextColor={colors.textTertiary}
+                    value={bio}
+                    onChangeText={setBio}
+                    multiline
+                    numberOfLines={3}
+                    textAlignVertical="top"
+                  />
+                </View>
               </>
             )}
             
-            <View style={styles.inputContainer}>
-              <Mail size={20} color={colors.textSecondary} />
-              <TextInput
-                style={styles.input}
-                placeholder="Email"
-                placeholderTextColor={colors.textTertiary}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
+            {mode === 'login' && (
+              <View style={styles.inputContainer}>
+                <Mail size={20} color={colors.textSecondary} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email"
+                  placeholderTextColor={colors.textTertiary}
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
+            )}
             
             <View style={styles.inputContainer}>
               <Lock size={20} color={colors.textSecondary} />
               <TextInput
                 style={styles.input}
-                placeholder="Password"
+                placeholder={mode === 'register' ? 'Password *' : 'Password'}
                 placeholderTextColor={colors.textTertiary}
                 value={password}
                 onChangeText={setPassword}
@@ -327,7 +488,8 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
               </Text>
             </TouchableOpacity>
           </View>
-        </View>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -337,15 +499,28 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  },
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    paddingVertical: 20,
   },
   modalContent: {
-    maxHeight: '90%',
     backgroundColor: colors.background,
     borderRadius: 12,
     padding: 24,
     alignItems: 'center',
+    maxWidth: '100%',
+    ...Platform.select({
+      web: {
+        maxHeight: '90vh',
+        overflowY: 'auto' as any,
+      },
+      default: {
+        maxHeight: '90%',
+      },
+    }),
   },
   header: {
     width: '100%',
@@ -477,5 +652,65 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: 14,
     fontWeight: '600',
+  },
+  profilePictureSection: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  sectionLabel: {
+    color: colors.text,
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 12,
+  },
+  profilePictureContainer: {
+    alignItems: 'center',
+  },
+  profilePictureButton: {
+    marginBottom: 12,
+  },
+  profilePicture: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.card,
+  },
+  profilePicturePlaceholder: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: colors.card,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.border,
+    borderStyle: 'dashed',
+  },
+  uploadButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: colors.primary,
+  },
+  uploadButtonText: {
+    color: colors.primary,
+    fontSize: 14,
+    fontWeight: '500',
+    marginLeft: 6,
+  },
+  bioContainer: {
+    alignItems: 'flex-start',
+    minHeight: 80,
+  },
+  bioIcon: {
+    marginTop: 4,
+  },
+  bioInput: {
+    minHeight: 60,
+    textAlignVertical: 'top',
   },
 });

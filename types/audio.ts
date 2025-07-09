@@ -23,14 +23,40 @@ export interface User {
   username: string;
   displayName: string;
   email: string;
-  avatarUrl?: string;
   bio?: string;
-  followers?: string[];
-  following?: string[];
+  avatarUrl?: string;
+  coverImageUrl?: string;
+  followers: string[];
+  following: string[];
+  createdAt: string;
+  isVerified: boolean;
+  isPremium: boolean;
+  subscription?: {
+    plan: string;
+    startDate: string;
+    endDate: string;
+    autoRenew: boolean;
+    stripeCustomerId?: string;
+    stripeSubscriptionId?: string;
+    status: 'active' | 'cancelled' | 'past_due' | 'incomplete';
+  };
+  socialLinks?: {
+    website?: string;
+    instagram?: string;
+    twitter?: string;
+    facebook?: string;
+    soundcloud?: string;
+    youtube?: string;
+  };
+  stats: {
+    totalPlays: number;
+    totalLikes: number;
+    totalFollowers: number;
+    totalFollowing: number;
+    totalTracks: number;
+    totalPlaylists: number;
+  };
   tracksCount?: number;
-  playlists?: string[];
-  createdAt?: number;
-  isVerified?: boolean;
 }
 
 export interface Playlist {
