@@ -1682,7 +1682,24 @@ Submission Process: ${opportunity.submissionProcess}`,
         <View style={styles.catalogContainer}>
           <View style={styles.catalogHeader}>
             <Text style={styles.sectionTitle}>Your Catalog</Text>
-            <TouchableOpacity style={styles.addTrackButton} onPress={() => router.push('/upload')}>
+            <TouchableOpacity style={styles.addTrackButton} onPress={() => {
+              // Check if user is logged in
+              if (!isLoggedIn) {
+                setShowLoginModal(true);
+                return;
+              }
+              
+              // Navigate to upload track modal or screen
+              // For now, we'll show an alert since we don't have a dedicated upload route
+              Alert.alert(
+                "Upload Track",
+                "This would open the track upload interface. The upload functionality is available through the library tab.",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  { text: "Go to Library", onPress: () => router.push('/(tabs)/library') }
+                ]
+              );
+            }}>
               <PlusCircle size={20} color={colors.primary} />
               <Text style={styles.addTrackButtonText}>Add Track</Text>
             </TouchableOpacity>

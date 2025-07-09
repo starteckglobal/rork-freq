@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   StyleSheet, 
   Text, 
@@ -26,6 +26,7 @@ import { colors } from '@/constants/colors';
 import { usePlayerStore } from '@/store/player-store';
 import { defaultAvatarUri } from '@/constants/images';
 import FollowersModal from '@/components/FollowersModal';
+import { useUserStore } from '@/store/user-store';
 
 export default function UserProfileScreen() {
   const { id } = useLocalSearchParams();
@@ -33,10 +34,18 @@ export default function UserProfileScreen() {
   const { currentTrack, isMinimized } = usePlayerStore();
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [showFollowingModal, setShowFollowingModal] = useState(false);
+  const { followUser, unfollowUser, isFollowing: checkIsFollowing } = useUserStore();
   const [isFollowing, setIsFollowing] = useState(false);
   
   const userId = id ? String(id) : '';
   const user = users.find(u => u.id === userId);
+  
+  // Check if following this user
+  useEffect(() => {
+    if (userId) {
+      setIsFollowing(checkIsFollowing(userId));
+    }
+  }, [userId, checkIsFollowing]);
   
   if (!user) {
     return (
@@ -68,7 +77,15 @@ export default function UserProfileScreen() {
   const userTracks = tracks.filter(track => track.artistId === user.id);
   
   const toggleFollow = () => {
-    setIsFollowing(!isFollowing);
+    if (!userId) return;
+    
+    if (isFollowing) {
+      unfollowUser(userId);
+      setIsFollowing(false);
+    } else {
+      followUser(userId);
+      setIsFollowing(true);
+    }
   };
   
   const handleMessage = () => {

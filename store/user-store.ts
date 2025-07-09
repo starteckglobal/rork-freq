@@ -466,6 +466,15 @@ export const useUserStore = create<UserState>()(
         
         set({ currentUser: updatedUser });
         
+        // Persist the change immediately
+        setTimeout(() => {
+          const state = get();
+          if (state.currentUser) {
+            // Force a state update to ensure persistence
+            set({ currentUser: { ...state.currentUser } });
+          }
+        }, 100);
+        
         // Track follow
         analyticsEventBus.publish('user_follow', {
           user_id: currentUser.id,
@@ -493,6 +502,15 @@ export const useUserStore = create<UserState>()(
         };
         
         set({ currentUser: updatedUser });
+        
+        // Persist the change immediately
+        setTimeout(() => {
+          const state = get();
+          if (state.currentUser) {
+            // Force a state update to ensure persistence
+            set({ currentUser: { ...state.currentUser } });
+          }
+        }, 100);
         
         // Track unfollow
         analyticsEventBus.publish('user_unfollow', {

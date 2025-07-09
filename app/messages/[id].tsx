@@ -211,7 +211,7 @@ export default function ConversationScreen() {
             fontWeight: '600',
           },
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.push('/messages')} style={styles.backButton}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <ChevronLeft size={24} color="#FFFFFF" />
             </TouchableOpacity>
           ),
@@ -239,7 +239,7 @@ export default function ConversationScreen() {
             fontWeight: '600',
           },
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.push('/messages')} style={styles.backButton}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <ChevronLeft size={24} color="#FFFFFF" />
             </TouchableOpacity>
           ),
@@ -519,7 +519,7 @@ export default function ConversationScreen() {
           <View style={styles.headerLeftContainer}>
             <TouchableOpacity 
               style={styles.backButton}
-              onPress={() => router.push('/messages')}
+              onPress={() => router.back()}
             >
               <ChevronLeft size={24} color="#FFFFFF" />
             </TouchableOpacity>

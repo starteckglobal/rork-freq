@@ -215,7 +215,7 @@ export default function MessagesScreen() {
           },
           headerLeft: () => (
             <View style={styles.headerLeftContainer}>
-              <TouchableOpacity onPress={() => router.push('/')} style={styles.backButton}>
+              <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
                 <ChevronLeft size={24} color="#FFFFFF" />
               </TouchableOpacity>
               <TouchableOpacity onPress={() => router.push('/')}>
@@ -266,7 +266,7 @@ export default function MessagesScreen() {
         },
         headerLeft: () => (
           <View style={styles.headerLeftContainer}>
-            <TouchableOpacity onPress={() => router.push('/')} style={styles.backButton}>
+            <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
               <ChevronLeft size={24} color="#FFFFFF" />
             </TouchableOpacity>
             <TouchableOpacity onPress={() => router.push('/')}>
