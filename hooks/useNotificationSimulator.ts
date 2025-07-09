@@ -16,7 +16,7 @@ export const useNotificationSimulator = () => {
     if (!isLoggedIn) return;
 
     // Simulate random notifications
-    const intervals: NodeJS.Timeout[] = [];
+    const intervals: ReturnType<typeof setInterval>[] = [];
 
     // Simulate play count milestones
     const playNotificationInterval = setInterval(() => {
