@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Track } from '@/types/audio';
 import { useUserStore } from './user-store';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
+import { useNotificationsStore } from './notifications-store';
 
 export type PlayerState = 'playing' | 'paused' | 'loading' | 'stopped';
 export type RepeatMode = 'off' | 'all' | 'one';
@@ -144,6 +145,19 @@ export const usePlayerStore = create<PlayerStore>()(
         } catch (error) {
           console.error('Error publishing analytics event:', error);
         }
+        
+        // Simulate play count notifications for demo
+        // In a real app, this would be handled by the backend when milestones are reached
+        setTimeout(() => {
+          const notificationsStore = useNotificationsStore.getState();
+          const playCount = Math.floor(Math.random() * 10000) + 100;
+          const milestones = [100, 500, 1000, 5000, 10000];
+          
+          // 5% chance of triggering a milestone notification
+          if (Math.random() < 0.05 && milestones.includes(playCount)) {
+            notificationsStore.notifyTrackPlays(track.title, playCount);
+          }
+        }, 2000);
         
         set({ 
           currentTrack: track, 

@@ -26,6 +26,10 @@ export const colors = {
   warning: '#FFCC00',
   error: '#FF3B30',
   
+  // Additional colors for notifications
+  secondary: '#8A3FFC', // Purple
+  accent: '#FF6B35', // Orange
+  
   // Gradients
   gradientStart: '#2B4BF2',
   gradientEnd: '#8A3FFC', // Purple to match the logo background

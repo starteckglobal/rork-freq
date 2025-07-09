@@ -35,7 +35,7 @@ export default function WaveformVisualizer({
   onDragStart,
   onDragEnd,
   onHoverChange,
-  color = '#007AFF',
+  color = colors.primary,
   backgroundColor = 'rgba(255,255,255,0.3)'
 }: WaveformVisualizerProps) {
   const containerRef = useRef<View>(null);

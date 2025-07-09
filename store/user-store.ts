@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { generateId } from '@/utils/id';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
+import { useNotificationsStore } from './notifications-store';
 import { Playlist } from '@/types/audio';
 
 export interface User {
@@ -475,6 +476,15 @@ export const useUserStore = create<UserState>()(
           }
         }, 100);
         
+        // Simulate notification to the followed user (in a real app, this would be handled by the backend)
+        // For demo purposes, we'll trigger a notification if following a specific user
+        if (userId === 'user-2' || userId === 'user-3') {
+          setTimeout(() => {
+            const notificationsStore = useNotificationsStore.getState();
+            notificationsStore.notifyNewFollower(currentUser.displayName, currentUser.avatarUrl);
+          }, 1000);
+        }
+        
         // Track follow
         analyticsEventBus.publish('user_follow', {
           user_id: currentUser.id,
@@ -576,6 +586,14 @@ export const useUserStore = create<UserState>()(
         // Initialize likedTracks as an empty array if it's undefined
         const updatedLikedTracks = likedTracks ? [...likedTracks, trackId] : [trackId];
         set({ likedTracks: updatedLikedTracks });
+        
+        // Simulate notification to track owner (in a real app, this would be handled by the backend)
+        if (currentUser && trackId === '1') { // Demo: notify for specific track
+          setTimeout(() => {
+            const notificationsStore = useNotificationsStore.getState();
+            notificationsStore.notifyTrackLike('Midnight Dreams', currentUser.displayName, currentUser.avatarUrl);
+          }, 500);
+        }
         
         // Track like
         analyticsEventBus.publish('track_like', {
@@ -803,6 +821,14 @@ export const useUserStore = create<UserState>()(
         
         console.log('Added track', trackId, 'to playlist', updatedPlaylist.name);
         console.log('Playlist now has', updatedTracks.length, 'tracks');
+        
+        // Simulate notification to track owner (in a real app, this would be handled by the backend)
+        if (trackId === '2') { // Demo: notify for specific track
+          setTimeout(() => {
+            const notificationsStore = useNotificationsStore.getState();
+            notificationsStore.notifyPlaylistAdd('Electric Pulse', updatedPlaylist.name, currentUser.displayName);
+          }, 500);
+        }
         
         // Track add to playlist
         analyticsEventBus.publish('track_add_to_playlist', {

@@ -10,20 +10,26 @@ import { featuredPlaylists } from '@/mocks/playlists';
 import { colors } from '@/constants/colors';
 import { usePlayerStore } from '@/store/player-store';
 import { useUserStore } from '@/store/user-store';
+import { useNotificationsStore } from '@/store/notifications-store';
 import { freqLogoUrl } from '@/constants/images';
-import { UserPlus, Upload } from 'lucide-react-native';
+import { UserPlus, Upload, MessageCircle, Bell } from 'lucide-react-native';
 import LoginModal from '@/components/LoginModal';
 import UploadTrackModal from '@/components/UploadTrackModal';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNotificationSimulator } from '@/hooks/useNotificationSimulator';
 
 const { width } = Dimensions.get('window');
 
 export default function HomeScreen() {
   const { currentTrack, isMinimized } = usePlayerStore();
   const { isLoggedIn, setShowLoginModal, showLoginModal } = useUserStore();
+  const { unreadCount } = useNotificationsStore();
   const router = useRouter();
   const [showUploadModal, setShowUploadModal] = React.useState(false);
   const insets = useSafeAreaInsets();
+  
+  // Enable live notifications simulation
+  useNotificationSimulator();
   
   const handleLoginPress = () => {
     setShowLoginModal(true);
@@ -83,6 +89,31 @@ export default function HomeScreen() {
         ),
         headerRight: () => (
           <View style={styles.headerRightContainer}>
+            {isLoggedIn && (
+              <>
+                <TouchableOpacity 
+                  style={styles.iconButton}
+                  onPress={() => router.push('/messages')}
+                >
+                  <MessageCircle size={20} color={colors.text} />
+                </TouchableOpacity>
+                
+                <TouchableOpacity 
+                  style={styles.iconButton}
+                  onPress={() => router.push('/notifications')}
+                >
+                  <Bell size={20} color={colors.text} />
+                  {unreadCount > 0 && (
+                    <View style={styles.notificationBadge}>
+                      <Text style={styles.notificationBadgeText}>
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </Text>
+                    </View>
+                  )}
+                </TouchableOpacity>
+              </>
+            )}
+            
             <TouchableOpacity 
               style={styles.uploadButton}
               onPress={handleUploadPress}
@@ -162,12 +193,35 @@ const styles = StyleSheet.create({
   headerRightContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 8,
+  },
+  iconButton: {
+    backgroundColor: colors.cardElevated,
+    padding: 8,
+    borderRadius: 20,
+    position: 'relative',
+  },
+  notificationBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    backgroundColor: colors.primary,
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 4,
+  },
+  notificationBadgeText: {
+    color: colors.text,
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   uploadButton: {
     backgroundColor: colors.cardElevated,
     padding: 8,
     borderRadius: 20,
-    marginRight: 12,
   },
   loginButton: {
     flexDirection: 'row',
