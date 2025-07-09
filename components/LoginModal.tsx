@@ -17,7 +17,7 @@ import {
 import { X, Eye, EyeOff, Mail, Lock, User, Camera, Upload } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { useUserStore } from '@/store/user-store';
-import { freqLogo } from '@/constants/images';
+import { freqLogoUrl } from '@/constants/images';
 import { analytics } from '@/services/analytics';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
 import { useRouter } from 'expo-router';
@@ -133,7 +133,7 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
       email,
       displayName,
       bio,
-      avatarUrl: profileImage
+      avatarUrl: profileImage || undefined
     }, password)
       .then(success => {
         if (success) {
@@ -290,7 +290,7 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
           
           <View style={styles.logoContainer}>
             <Image
-              source={freqLogo}
+              source={{ uri: freqLogoUrl }}
               style={styles.logo}
               resizeMode="contain"
             />
