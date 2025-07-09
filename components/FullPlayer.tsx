@@ -379,8 +379,8 @@ export default function FullPlayer() {
               onSeek={handleWaveformSeek}
               style={styles.waveform}
               interactive={true}
-              color="rgba(255,255,255,0.8)"
-              backgroundColor="rgba(255,255,255,0.2)"
+              color="#007AFF"
+              backgroundColor="rgba(0,122,255,0.2)"
             />
           </View>
           
