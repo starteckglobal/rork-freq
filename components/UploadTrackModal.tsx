@@ -19,6 +19,8 @@ import {
 import { X, Upload, Image as ImageIcon, Music, Calendar, Tag, Clock } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { defaultCoverArt } from '@/constants/images';
+import StyledInput from '@/components/StyledInput';
+import StyledButton from '@/components/StyledButton';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -319,10 +321,8 @@ export default function UploadTrackModal({
                   
                   <View style={styles.inputContainer}>
                     <Text style={styles.inputLabel}>Title</Text>
-                    <TextInput
-                      style={[styles.input, errors.title && styles.inputError]}
+                    <StyledInput
                       placeholder="Track title"
-                      placeholderTextColor={colors.textTertiary}
                       value={title}
                       onChangeText={(text) => {
                         setTitle(text);
@@ -337,16 +337,15 @@ export default function UploadTrackModal({
                       }}
                       maxLength={100}
                       editable={!isLoading}
+                      containerStyle={styles.styledInputContainer}
                     />
                     {errors.title && <Text style={styles.errorText}>{errors.title}</Text>}
                   </View>
                   
                   <View style={styles.inputContainer}>
                     <Text style={styles.inputLabel}>Artist</Text>
-                    <TextInput
-                      style={[styles.input, errors.artist && styles.inputError]}
+                    <StyledInput
                       placeholder="Artist name"
-                      placeholderTextColor={colors.textTertiary}
                       value={artist}
                       onChangeText={(text) => {
                         setArtist(text);
@@ -361,34 +360,31 @@ export default function UploadTrackModal({
                       }}
                       maxLength={100}
                       editable={!isLoading}
+                      containerStyle={styles.styledInputContainer}
                     />
                     {errors.artist && <Text style={styles.errorText}>{errors.artist}</Text>}
                   </View>
                   
                   <View style={styles.inputContainer}>
                     <Text style={styles.inputLabel}>Genre</Text>
-                    <View style={styles.genreContainer}>
-                      <TextInput
-                        style={[styles.input, styles.genreInput, errors.genre && styles.inputError]}
-                        placeholder="Genre"
-                        placeholderTextColor={colors.textTertiary}
-                        value={genre}
-                        onChangeText={(text) => {
-                          setGenre(text);
-                          setFormTouched(true);
-                          if (text.trim()) {
-                            setErrors(prev => {
-                              const newErrors = { ...prev };
-                              delete newErrors.genre;
-                              return newErrors;
-                            });
-                          }
-                        }}
-                        maxLength={50}
-                        editable={!isLoading}
-                      />
-                      <Tag size={20} color={colors.textSecondary} style={styles.genreIcon} />
-                    </View>
+                    <StyledInput
+                      placeholder="Genre"
+                      value={genre}
+                      onChangeText={(text) => {
+                        setGenre(text);
+                        setFormTouched(true);
+                        if (text.trim()) {
+                          setErrors(prev => {
+                            const newErrors = { ...prev };
+                            delete newErrors.genre;
+                            return newErrors;
+                          });
+                        }
+                      }}
+                      maxLength={50}
+                      editable={!isLoading}
+                      containerStyle={styles.styledInputContainer}
+                    />
                     {errors.genre && <Text style={styles.errorText}>{errors.genre}</Text>}
                   </View>
                   
@@ -436,25 +432,13 @@ export default function UploadTrackModal({
                     />
                   </View>
                   
-                  <TouchableOpacity 
-                    style={[
-                      styles.uploadButton,
-                      (isLoading || !formTouched) && styles.disabledButton
-                    ]}
-                    onPress={handleUpload}
-                    disabled={isLoading || !formTouched}
-                  >
-                    {isLoading ? (
-                      <ActivityIndicator color={colors.text} size="small" />
-                    ) : (
-                      <>
-                        <Upload size={20} color={colors.text} />
-                        <Text style={styles.uploadButtonText}>
-                          Upload Track
-                        </Text>
-                      </>
-                    )}
-                  </TouchableOpacity>
+                  <View style={styles.uploadButtonContainer}>
+                    <StyledButton
+                      title={isLoading ? "Uploading..." : "Upload Track"}
+                      onPress={handleUpload}
+                      disabled={isLoading || !formTouched}
+                    />
+                  </View>
                 </View>
               </ScrollView>
             </View>
@@ -654,5 +638,13 @@ const styles = StyleSheet.create({
   disabledButton: {
     backgroundColor: colors.cardElevated,
     opacity: 0.7,
+  },
+  styledInputContainer: {
+    width: '100%',
+    maxWidth: '100%',
+  },
+  uploadButtonContainer: {
+    alignItems: 'center',
+    marginTop: 8,
   },
 });

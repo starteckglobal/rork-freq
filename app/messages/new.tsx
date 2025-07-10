@@ -20,6 +20,7 @@ import {
 import { colors } from '@/constants/colors';
 import { users } from '@/mocks/users';
 import { defaultAvatarUri, freqLogoUrl } from '@/constants/images';
+import StyledInput from '@/components/StyledInput';
 
 export default function NewMessageScreen() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -90,14 +91,13 @@ export default function NewMessageScreen() {
       
       <View style={styles.content}>
         <View style={styles.searchContainer}>
-          <Search size={20} color={colors.textSecondary} />
-          <TextInput
-            style={styles.searchInput}
+          <StyledInput
             placeholder="Search for people"
-            placeholderTextColor={colors.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
             autoFocus
+            containerStyle={styles.styledSearchInput}
+            shortcut="⌘K"
           />
         </View>
         

@@ -15,6 +15,7 @@ import { freqLogoUrl } from '@/constants/images';
 import { UserPlus, Upload, MessageCircle, Bell } from 'lucide-react-native';
 import LoginModal from '@/components/LoginModal';
 import UploadTrackModal from '@/components/UploadTrackModal';
+import StyledButton from '@/components/StyledButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNotificationSimulator } from '@/hooks/useNotificationSimulator';
 
@@ -121,25 +122,24 @@ export default function HomeScreen() {
               <Upload size={20} color={colors.text} />
             </TouchableOpacity>
             
-            <TouchableOpacity 
-              style={styles.loginButton}
-              onPress={handleLoginPress}
-              testID="header-login-button"
-            >
+            <View style={styles.headerButtonContainer}>
               {!isLoggedIn ? (
-                <>
-                  <UserPlus size={20} color={colors.text} />
-                  <Text style={styles.loginButtonText}>Login+</Text>
-                </>
+                <StyledButton
+                  title="Login+"
+                  onPress={handleLoginPress}
+                  style={styles.headerButton}
+                  textStyle={styles.headerButtonText}
+                />
               ) : (
-                <TouchableOpacity 
+                <StyledButton
+                  title="My Profile"
                   onPress={() => router.push('/profile')}
-                  style={styles.profileButton}
-                >
-                  <Text style={styles.profileButtonText}>My Profile</Text>
-                </TouchableOpacity>
+                  style={styles.headerButton}
+                  textStyle={styles.headerButtonText}
+                  variant="secondary"
+                />
               )}
-            </TouchableOpacity>
+            </View>
           </View>
         ),
       }} />
@@ -249,5 +249,16 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 14, // Smaller font
     fontWeight: '600',
-  }
+  },
+  headerButtonContainer: {
+    alignItems: 'center',
+  },
+  headerButton: {
+    minWidth: 80,
+    minHeight: 32,
+  },
+  headerButtonText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
 });

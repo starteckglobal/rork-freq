@@ -17,6 +17,7 @@ import { Search, X } from 'lucide-react-native';
 import TrackCard from '@/components/TrackCard';
 import UserCard from '@/components/UserCard';
 import MiniPlayer from '@/components/MiniPlayer';
+import StyledInput from '@/components/StyledInput';
 import { tracks } from '@/mocks/tracks';
 import { users } from '@/mocks/users';
 import { colors } from '@/constants/colors';
@@ -298,14 +299,13 @@ export default function SearchScreen() {
           <Text style={styles.headerTitle}>Search</Text>
         </View>
         <View style={styles.searchContainer}>
-          <Search size={20} color={colors.textSecondary} style={styles.searchIcon} />
-          <TextInput
-            style={styles.searchInput}
+          <StyledInput
             placeholder="Search tracks, artists, or genres"
-            placeholderTextColor={colors.textSecondary}
             value={searchQuery}
             onChangeText={setSearchQuery}
             autoCapitalize="none"
+            shortcut="⌘K"
+            containerStyle={styles.styledSearchInput}
             onSubmitEditing={() => {
               if (searchQuery) {
                 analyticsEventBus.publish('search_query', {
@@ -317,7 +317,7 @@ export default function SearchScreen() {
             }}
           />
           {searchQuery.length > 0 && (
-            <TouchableOpacity onPress={handleClearSearch}>
+            <TouchableOpacity onPress={handleClearSearch} style={styles.clearButton}>
               <X size={20} color={colors.textSecondary} />
             </TouchableOpacity>
           )}
@@ -459,5 +459,19 @@ const styles = StyleSheet.create({
     color: colors.text,
     fontSize: 16,
     fontWeight: '600',
+  },
+  styledSearchInput: {
+    flex: 1,
+    maxWidth: '100%',
+  },
+  clearButton: {
+    position: 'absolute',
+    right: 16,
+    top: '50%',
+    transform: [{ translateY: -10 }],
+    zIndex: 10,
+    backgroundColor: colors.card,
+    borderRadius: 15,
+    padding: 5,
   },
 });

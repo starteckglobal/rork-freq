@@ -22,6 +22,8 @@ import { analytics } from '@/services/analytics';
 import { analyticsEventBus } from '@/services/analytics-event-bus';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import StyledInput from '@/components/StyledInput';
+import StyledButton from '@/components/StyledButton';
 
 interface LoginModalProps {
   visible: boolean;
@@ -343,36 +345,27 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
                   </View>
                 </View>
                 
-                <View style={styles.inputContainer}>
-                  <User size={20} color={colors.textSecondary} />
-                  <TextInput
-                    style={styles.input}
+                <View style={styles.styledInputContainer}>
+                  <StyledInput
                     placeholder="Display Name *"
-                    placeholderTextColor={colors.textTertiary}
                     value={displayName}
                     onChangeText={setDisplayName}
                     autoCapitalize="words"
                   />
                 </View>
                 
-                <View style={styles.inputContainer}>
-                  <User size={20} color={colors.textSecondary} />
-                  <TextInput
-                    style={styles.input}
+                <View style={styles.styledInputContainer}>
+                  <StyledInput
                     placeholder="Username *"
-                    placeholderTextColor={colors.textTertiary}
                     value={username}
                     onChangeText={setUsername}
                     autoCapitalize="none"
                   />
                 </View>
                 
-                <View style={styles.inputContainer}>
-                  <Mail size={20} color={colors.textSecondary} />
-                  <TextInput
-                    style={styles.input}
+                <View style={styles.styledInputContainer}>
+                  <StyledInput
                     placeholder="Email *"
-                    placeholderTextColor={colors.textTertiary}
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
@@ -397,40 +390,25 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
             )}
             
             {mode === 'login' && (
-              <View style={styles.inputContainer}>
-                <Mail size={20} color={colors.textSecondary} />
-                <TextInput
-                  style={styles.input}
+              <View style={styles.styledInputContainer}>
+                <StyledInput
                   placeholder="Email"
-                  placeholderTextColor={colors.textTertiary}
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
+                  shortcut="⌘K"
                 />
               </View>
             )}
             
-            <View style={styles.inputContainer}>
-              <Lock size={20} color={colors.textSecondary} />
-              <TextInput
-                style={styles.input}
+            <View style={styles.styledInputContainer}>
+              <StyledInput
                 placeholder={mode === 'register' ? 'Password *' : 'Password'}
-                placeholderTextColor={colors.textTertiary}
                 value={password}
                 onChangeText={setPassword}
                 secureTextEntry={!showPassword}
               />
-              <TouchableOpacity
-                onPress={() => setShowPassword(!showPassword)}
-                style={styles.eyeIcon}
-              >
-                {showPassword ? (
-                  <EyeOff size={20} color={colors.textSecondary} />
-                ) : (
-                  <Eye size={20} color={colors.textSecondary} />
-                )}
-              </TouchableOpacity>
             </View>
             
             {mode === 'login' && (
@@ -439,24 +417,21 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
               </TouchableOpacity>
             )}
             
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={mode === 'login' ? handleLogin : handleRegister}
-            >
-              <Text style={styles.submitButtonText}>
-                {mode === 'login' ? 'Login' : 'Sign Up'}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.styledButtonContainer}>
+              <StyledButton
+                title={mode === 'login' ? 'Login' : 'Sign Up'}
+                onPress={mode === 'login' ? handleLogin : handleRegister}
+              />
+            </View>
             
             {mode === 'login' && (
-              <TouchableOpacity
-                style={styles.demoButton}
-                onPress={handleDemoLogin}
-              >
-                <Text style={styles.demoButtonText}>
-                  Use Demo Account
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.styledButtonContainer}>
+                <StyledButton
+                  title="Use Demo Account"
+                  onPress={handleDemoLogin}
+                  variant="secondary"
+                />
+              </View>
             )}
             
             <View style={styles.divider}>
@@ -712,5 +687,13 @@ const styles = StyleSheet.create({
   bioInput: {
     minHeight: 60,
     textAlignVertical: 'top',
+  },
+  styledInputContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  styledButtonContainer: {
+    alignItems: 'center',
+    marginBottom: 16,
   },
 });
