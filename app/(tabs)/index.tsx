@@ -15,7 +15,6 @@ import { freqLogoUrl } from '@/constants/images';
 import { UserPlus, Upload, MessageCircle, Bell } from 'lucide-react-native';
 import LoginModal from '@/components/LoginModal';
 import UploadTrackModal from '@/components/UploadTrackModal';
-import StyledButton from '@/components/StyledButton';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNotificationSimulator } from '@/hooks/useNotificationSimulator';
 
@@ -122,19 +121,25 @@ export default function HomeScreen() {
               <Upload size={20} color={colors.text} />
             </TouchableOpacity>
             
-            {!isLoggedIn ? (
-              <StyledButton
-                title="Login+"
-                onPress={handleLoginPress}
-                style={styles.styledButton}
-              />
-            ) : (
-              <StyledButton
-                title="My Profile"
-                onPress={() => router.push('/profile')}
-                style={styles.styledButton}
-              />
-            )}
+            <TouchableOpacity 
+              style={styles.loginButton}
+              onPress={handleLoginPress}
+              testID="header-login-button"
+            >
+              {!isLoggedIn ? (
+                <>
+                  <UserPlus size={20} color={colors.text} />
+                  <Text style={styles.loginButtonText}>Login+</Text>
+                </>
+              ) : (
+                <TouchableOpacity 
+                  onPress={() => router.push('/profile')}
+                  style={styles.profileButton}
+                >
+                  <Text style={styles.profileButtonText}>My Profile</Text>
+                </TouchableOpacity>
+              )}
+            </TouchableOpacity>
           </View>
         ),
       }} />
@@ -218,7 +223,31 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 20,
   },
-  styledButton: {
-    // Additional styling if needed
+  loginButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4169E1', // Royal blue
+    paddingVertical: 6, // Reduced padding
+    paddingHorizontal: 12, // Reduced padding
+    borderRadius: 20,
+    minHeight: 36, // Smaller height
+    minWidth: 90, // Ensure button is wide enough
+  },
+  loginButtonText: {
+    color: colors.text,
+    fontSize: 14, // Smaller font
+    fontWeight: '600',
+    marginLeft: 6, // Reduced margin
+  },
+  profileButton: {
+    backgroundColor: '#4169E1', // Royal blue
+    paddingVertical: 6, // Reduced padding
+    paddingHorizontal: 12, // Reduced padding
+    borderRadius: 20,
+  },
+  profileButtonText: {
+    color: colors.text,
+    fontSize: 14, // Smaller font
+    fontWeight: '600',
   }
 });
