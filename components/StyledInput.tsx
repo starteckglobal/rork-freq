@@ -70,11 +70,6 @@ const styles = StyleSheet.create({
     color: colors.text,
     backgroundColor: 'transparent',
     borderWidth: 0,
-    ...Platform.select({
-      web: {
-        outline: 'none',
-      },
-    }),
   },
   shortcut: {
     position: 'absolute',
