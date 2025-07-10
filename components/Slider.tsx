@@ -10,6 +10,9 @@ interface SliderProps {
   minimumTrackTintColor?: string;
   maximumTrackTintColor?: string;
   thumbTintColor?: string;
+  thumbStyle?: any;
+  vertical?: boolean;
+  step?: number;
   style?: any;
 }
 
@@ -21,6 +24,9 @@ export default function CustomSlider({
   minimumTrackTintColor,
   maximumTrackTintColor,
   thumbTintColor,
+  thumbStyle,
+  vertical = false,
+  step = 0.01,
   style,
 }: SliderProps) {
   // For web, we need a fallback since the community slider might not work well
@@ -31,21 +37,30 @@ export default function CustomSlider({
           type="range"
           min={minimumValue.toString()}
           max={maximumValue.toString()}
-          step="0.01"
+          step={step.toString()}
           value={value.toString()}
           onChange={(e) => onValueChange && onValueChange(parseFloat(e.target.value))}
           style={{
-            width: '100%',
-            height: 40,
+            width: vertical ? '40px' : '100%',
+            height: vertical ? '100%' : '40px',
             accentColor: minimumTrackTintColor,
+            transform: vertical ? 'rotate(-90deg)' : 'none',
+            transformOrigin: 'center',
           }}
         />
       </View>
     );
   }
 
+  // For vertical sliders on native, we need to rotate the slider
+  const containerStyle = vertical ? {
+    transform: [{ rotate: '-90deg' }],
+    width: style?.height || 120,
+    height: style?.width || 20,
+  } : {};
+
   return (
-    <View style={[styles.container, style]}>
+    <View style={[styles.container, style, containerStyle]}>
       <RNSlider
         value={value}
         onValueChange={onValueChange}
@@ -53,8 +68,9 @@ export default function CustomSlider({
         maximumValue={maximumValue}
         minimumTrackTintColor={minimumTrackTintColor}
         maximumTrackTintColor={maximumTrackTintColor}
-        thumbTintColor={thumbTintColor}
-        style={styles.slider}
+        thumbTintColor={thumbTintColor || thumbStyle?.backgroundColor}
+        step={step}
+        style={vertical ? { width: style?.height || 120, height: style?.width || 20 } : styles.slider}
       />
     </View>
   );
