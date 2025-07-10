@@ -430,12 +430,12 @@ export default function SettingsScreen() {
   
   // Handle audience insights
   const handleAudienceInsights = () => {
-    router.push('/analytics/audience');
+    router.push('/(tabs)/synclab');
   };
   
   // Handle revenue reports
   const handleRevenueReports = () => {
-    router.push('/analytics/revenue');
+    router.push('/(tabs)/synclab');
   };
   
   // Handle email notifications

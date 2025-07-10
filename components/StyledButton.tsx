@@ -1,5 +1,5 @@
-import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, Platform, ViewStyle, TextStyle } from 'react-native';
+import React, { useState } from 'react';
+import { TouchableOpacity, Text, StyleSheet, Platform, ViewStyle, TextStyle, Animated } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors } from '@/constants/colors';
 
@@ -20,38 +20,71 @@ export default function StyledButton({
   disabled = false,
   variant = 'primary'
 }: StyledButtonProps) {
+  const [isPressed, setIsPressed] = useState(false);
+  const scaleValue = new Animated.Value(1);
+
+  const handlePressIn = () => {
+    setIsPressed(true);
+    Animated.timing(scaleValue, {
+      toValue: 0.95,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    setIsPressed(false);
+    Animated.timing(scaleValue, {
+      toValue: 1,
+      duration: 150,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
-    <TouchableOpacity
-      style={[styles.container, style]}
-      onPress={onPress}
-      disabled={disabled}
-      activeOpacity={0.8}
-    >
-      <LinearGradient
-        colors={variant === 'primary' ? ['#e81cff', '#40c9ff'] : ['#fc00ff', '#00dbde']}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.gradientBorder}
+    <Animated.View style={[{ transform: [{ scale: scaleValue }] }, styles.container, style]}>
+      <TouchableOpacity
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled}
+        activeOpacity={1}
       >
         <LinearGradient
-          colors={variant === 'primary' ? ['#fc00ff', '#00dbde'] : ['#e81cff', '#40c9ff']}
+          colors={variant === 'primary' ? ['#e81cff', '#40c9ff'] : ['#fc00ff', '#00dbde']}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={styles.gradientBackground}
+          style={[styles.gradientBorder, isPressed && styles.gradientBorderPressed]}
         >
-          <TouchableOpacity
-            style={[styles.button, disabled && styles.buttonDisabled]}
-            onPress={onPress}
-            disabled={disabled}
-            activeOpacity={0.9}
+          <LinearGradient
+            colors={isPressed 
+              ? ['#8B5CF6', '#06B6D4'] 
+              : variant === 'primary' 
+                ? ['#fc00ff', '#00dbde'] 
+                : ['#e81cff', '#40c9ff']
+            }
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.gradientBackground}
           >
-            <Text style={[styles.buttonText, textStyle, disabled && styles.buttonTextDisabled]}>
-              {title}
-            </Text>
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.button, 
+                disabled && styles.buttonDisabled,
+                isPressed && styles.buttonPressed
+              ]}
+              onPress={onPress}
+              disabled={disabled}
+              activeOpacity={1}
+            >
+              <Text style={[styles.buttonText, textStyle, disabled && styles.buttonTextDisabled]}>
+                {title}
+              </Text>
+            </TouchableOpacity>
+          </LinearGradient>
         </LinearGradient>
-      </LinearGradient>
-    </TouchableOpacity>
+      </TouchableOpacity>
+    </Animated.View>
   );
 }
 
@@ -61,12 +94,19 @@ const styles = StyleSheet.create({
   },
   gradientBorder: {
     borderRadius: 10,
-    padding: 2,
+    padding: 1.5,
     shadowColor: '#fc00ff',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 20,
     elevation: 10,
+  },
+  gradientBorderPressed: {
+    shadowColor: '#8B5CF6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.6,
+    shadowRadius: 8,
+    elevation: 5,
   },
   gradientBackground: {
     borderRadius: 8,
@@ -86,6 +126,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+  },
+  buttonPressed: {
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    shadowColor: 'rgba(139, 92, 246, 0.3)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 8,
+    elevation: 3,
   },
   buttonDisabled: {
     backgroundColor: '#333',

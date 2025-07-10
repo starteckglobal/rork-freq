@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   headerLeftContainer: {
-    marginLeft: 16,
+    marginLeft: 20,
   },
   logoContainer: {
     flexDirection: 'row',
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginRight: 8,
+    marginRight: 16,
   },
   iconButton: {
     backgroundColor: colors.cardElevated,

@@ -242,8 +242,12 @@ export default function ProfileScreen() {
         ]}
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled={true}
-        removeClippedSubviews={Platform.OS === 'android'}
+        removeClippedSubviews={false}
         scrollEventThrottle={16}
+        keyboardShouldPersistTaps="handled"
+        bounces={true}
+        alwaysBounceVertical={false}
+        overScrollMode="auto"
       >
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
@@ -584,7 +588,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    flex: 1,
+    flexGrow: 1,
+    minHeight: '100%',
   },
   profileHeader: {
     padding: 16,
