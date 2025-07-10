@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   },
   gradientBorder: {
     borderRadius: 10,
-    padding: 4,
+    padding: 2,
     shadowColor: '#fc00ff',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,

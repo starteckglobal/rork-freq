@@ -268,6 +268,7 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.container}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         <View style={styles.modalContent}>
           <View style={styles.header}>
@@ -277,7 +278,12 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
             </TouchableOpacity>
           </View>
           
-          <ScrollView style={styles.form} showsVerticalScrollIndicator={false}>
+          <ScrollView 
+            style={styles.form} 
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ flexGrow: 1 }}
+          >
             {/* Cover Art Section */}
             <Text style={styles.label}>Cover Art (optional)</Text>
             <View style={styles.coverArtSection}>
@@ -404,7 +410,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: '100%',
     maxWidth: Math.min(width * 0.9, 500),
-    maxHeight: height * 0.85,
+    maxHeight: height * 0.8,
     backgroundColor: colors.card,
     borderRadius: 12,
     overflow: 'hidden',

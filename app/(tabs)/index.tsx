@@ -79,14 +79,16 @@ export default function HomeScreen() {
           color: colors.primary,
           fontSize: 22,
         },
+        headerTitle: '',  // Hide the default title since we're showing it in headerLeft
         headerLeft: () => (
           <View style={styles.headerLeftContainer}>
-            <TouchableOpacity onPress={() => router.push('/')}>
+            <TouchableOpacity onPress={() => router.push('/')} style={styles.logoContainer}>
               <Image 
                 source={{ uri: freqLogoUrl }} 
                 style={styles.logo}
                 resizeMode="contain"
               />
+              <Text style={styles.logoText}>FREQ</Text>
             </TouchableOpacity>
           </View>
         ),
@@ -189,6 +191,16 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   headerLeftContainer: {
+    marginLeft: 16,
+  },
+  logoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  logoText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: colors.primary,
     marginLeft: 8,
   },
   logo: {
@@ -199,6 +211,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    marginRight: 8,
   },
   iconButton: {
     backgroundColor: colors.cardElevated,
