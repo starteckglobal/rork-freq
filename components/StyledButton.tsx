@@ -62,33 +62,19 @@ const styles = StyleSheet.create({
   gradientBorder: {
     borderRadius: 10,
     padding: 4,
-    ...Platform.select({
-      web: {
-        filter: 'blur(20px)',
-      },
-      default: {
-        shadowColor: '#fc00ff',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.4,
-        shadowRadius: 20,
-        elevation: 10,
-      },
-    }),
+    shadowColor: '#fc00ff',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 10,
   },
   gradientBackground: {
     borderRadius: 8,
-    ...Platform.select({
-      web: {
-        filter: 'blur(30px)',
-      },
-      default: {
-        shadowColor: '#00dbde',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
-        shadowRadius: 15,
-        elevation: 8,
-      },
-    }),
+    shadowColor: '#00dbde',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 15,
+    elevation: 8,
   },
   button: {
     backgroundColor: '#000',
