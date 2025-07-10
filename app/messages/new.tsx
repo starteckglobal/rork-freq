@@ -97,7 +97,7 @@ export default function NewMessageScreen() {
             onChangeText={setSearchQuery}
             autoFocus
             containerStyle={styles.styledSearchInput}
-            shortcut="⌘K"
+
           />
         </View>
         

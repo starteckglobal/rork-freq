@@ -314,7 +314,7 @@ export default function SearchScreen() {
             value={searchQuery}
             onChangeText={setSearchQuery}
             autoCapitalize="none"
-            shortcut="⌘K"
+
             containerStyle={styles.styledSearchInput}
             onSubmitEditing={() => {
               if (searchQuery) {

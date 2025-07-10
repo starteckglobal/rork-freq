@@ -397,7 +397,7 @@ export default function LoginModal({ visible, onClose }: LoginModalProps) {
                   onChangeText={setEmail}
                   keyboardType="email-address"
                   autoCapitalize="none"
-                  shortcut="⌘K"
+
                 />
               </View>
             )}
