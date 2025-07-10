@@ -716,15 +716,14 @@ export default function SettingsScreen() {
             <View style={dynamicStyles.sectionContent}>
               <TouchableOpacity 
                 style={dynamicStyles.settingItem}
-                onPress={() => {
+onPress={() => {
                   Alert.alert(
                     "Profile Visibility",
                     "Choose who can see your profile:",
                     [
-                      { text: "Everyone", onPress: () => updatePrivacySettings({ profileVisibility: 'public' }) },
-                      { text: "Followers Only", onPress: () => updatePrivacySettings({ profileVisibility: 'followers' }) },
-                      { text: "Private", onPress: () => updatePrivacySettings({ profileVisibility: 'private' }) },
-                      { text: "Cancel", style: "cancel" }
+                      { text: "Cancel", style: "cancel" },
+                      { text: "Public", onPress: () => updatePrivacySettings({ profileVisibility: 'public' }) },
+                      { text: "Private", onPress: () => updatePrivacySettings({ profileVisibility: 'private' }) }
                     ]
                   );
                 }}
@@ -735,9 +734,8 @@ export default function SettingsScreen() {
                 </View>
                 <View style={dynamicStyles.valueContainer}>
                   <Text style={dynamicStyles.valueText}>
-                    {privacySettings?.profileVisibility === 'public' ? 'Everyone' : 
-                     privacySettings?.profileVisibility === 'followers' ? 'Followers Only' : 
-                     privacySettings?.profileVisibility === 'private' ? 'Private' : 'Everyone'}
+                    {privacySettings?.profileVisibility === 'public' ? 'Public' : 
+                     privacySettings?.profileVisibility === 'private' ? 'Private' : 'Public'}
                   </Text>
                   <ChevronRight size={18} color={themeColors.textTertiary} />
                 </View>
