@@ -933,7 +933,12 @@ export default function SyncLabScreen() {
       </View>
       
       <View style={styles.tabs}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView 
+          horizontal 
+          showsHorizontalScrollIndicator={false}
+          nestedScrollEnabled={true}
+          removeClippedSubviews={Platform.OS === 'android'}
+        >
           <TouchableOpacity 
             style={[styles.tab, !showSyncUp && !showOpportunities && !showSubmissions && !showCatalog && styles.activeTab]}
             onPress={() => {
@@ -1921,6 +1926,9 @@ Submission Process: ${opportunity.submissionProcess}`,
           { paddingBottom: getContentPaddingBottom() }
         ]}
         showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
+        removeClippedSubviews={Platform.OS === 'android'}
+        scrollEventThrottle={16}
       >
         {!isLoggedIn && (
           <View style={styles.loginPrompt}>

@@ -114,6 +114,12 @@ export default function TabLayout() {
             backgroundColor: colors.background,
             paddingBottom: getContentPaddingBottom(),
           },
+          // Fix Android scrolling issues
+          ...(Platform.OS === 'android' && {
+            lazy: false,
+            animationEnabled: true,
+            swipeEnabled: false,
+          }),
         }}
       >
         <Tabs.Screen

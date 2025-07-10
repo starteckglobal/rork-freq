@@ -240,6 +240,11 @@ export default function SearchScreen() {
               />
             )}
             scrollEnabled={false}
+            nestedScrollEnabled={true}
+            removeClippedSubviews={Platform.OS === 'android'}
+            initialNumToRender={10}
+            maxToRenderPerBatch={5}
+            windowSize={10}
           />
         )}
         
@@ -254,6 +259,11 @@ export default function SearchScreen() {
               />
             )}
             scrollEnabled={false}
+            nestedScrollEnabled={true}
+            removeClippedSubviews={Platform.OS === 'android'}
+            initialNumToRender={10}
+            maxToRenderPerBatch={5}
+            windowSize={10}
           />
         )}
       </View>
@@ -358,6 +368,7 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
     marginRight: 12,
+    marginLeft: 8,
   },
   headerTitle: {
     color: colors.text,

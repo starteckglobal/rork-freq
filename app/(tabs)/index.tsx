@@ -80,13 +80,15 @@ export default function HomeScreen() {
           fontSize: 22,
         },
         headerLeft: () => (
-          <TouchableOpacity onPress={() => router.push('/')}>
-            <Image 
-              source={{ uri: freqLogoUrl }} 
-              style={styles.logo}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
+          <View style={styles.headerLeftContainer}>
+            <TouchableOpacity onPress={() => router.push('/')}>
+              <Image 
+                source={{ uri: freqLogoUrl }} 
+                style={styles.logo}
+                resizeMode="contain"
+              />
+            </TouchableOpacity>
+          </View>
         ),
         headerRight: () => (
           <View style={styles.headerRightContainer}>
@@ -185,6 +187,9 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+  },
+  headerLeftContainer: {
+    marginLeft: 8,
   },
   logo: {
     width: 40,

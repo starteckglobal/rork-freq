@@ -145,6 +145,11 @@ export default function LibraryScreen() {
           numColumns={2}
           columnWrapperStyle={displayPlaylists.length > 1 ? styles.playlistRow : undefined}
           scrollEnabled={false}
+          nestedScrollEnabled={true}
+          removeClippedSubviews={Platform.OS === 'android'}
+          initialNumToRender={10}
+          maxToRenderPerBatch={5}
+          windowSize={10}
           contentContainerStyle={styles.playlistGrid}
         />
       );

@@ -241,6 +241,9 @@ export default function ProfileScreen() {
           { paddingBottom: getContentPaddingBottom() }
         ]}
         showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
+        removeClippedSubviews={Platform.OS === 'android'}
+        scrollEventThrottle={16}
       >
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>

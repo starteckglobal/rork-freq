@@ -79,10 +79,10 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: '#000',
     borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    minWidth: 120,
-    minHeight: 40,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    minWidth: 80,
+    minHeight: 32,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: '600',
     textAlign: 'center',
   },
