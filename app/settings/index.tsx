@@ -523,6 +523,9 @@ export default function SettingsScreen() {
     }
   };
   
+  const isLoading = privacyLoading || notificationsLoading || playbackLoading || twoFactorLoading;
+  const dynamicStyles = createStyles(themeColors);
+  
   if (!isLoggedIn) {
     return (
       <SafeAreaView style={dynamicStyles.container}>
@@ -558,9 +561,6 @@ export default function SettingsScreen() {
       </SafeAreaView>
     );
   }
-  
-  const isLoading = privacyLoading || notificationsLoading || playbackLoading || twoFactorLoading;
-  const dynamicStyles = createStyles(themeColors);
   
   return (
     <SafeAreaView style={dynamicStyles.container}>
@@ -657,7 +657,7 @@ export default function SettingsScreen() {
               >
                 <View style={dynamicStyles.settingLeft}>
                   <Lock size={18} color={themeColors.textSecondary} />
-                  <Text style={styles.settingLabel}>Change Password</Text>
+                  <Text style={dynamicStyles.settingLabel}>Change Password</Text>
                 </View>
                 <ChevronRight size={18} color={themeColors.textTertiary} />
               </TouchableOpacity>
@@ -668,7 +668,7 @@ export default function SettingsScreen() {
               >
                 <View style={dynamicStyles.settingLeft}>
                   <Mail size={18} color={themeColors.textSecondary} />
-                  <Text style={styles.settingLabel}>Email Preferences</Text>
+                  <Text style={dynamicStyles.settingLabel}>Email Preferences</Text>
                 </View>
                 <ChevronRight size={18} color={themeColors.textTertiary} />
               </TouchableOpacity>
@@ -679,13 +679,13 @@ export default function SettingsScreen() {
               >
                 <View style={dynamicStyles.settingLeft}>
                   <Download size={18} color={themeColors.textSecondary} />
-                  <Text style={styles.settingLabel}>Export Your Data</Text>
+                  <Text style={dynamicStyles.settingLabel}>Export Your Data</Text>
                 </View>
                 <ChevronRight size={18} color={themeColors.textTertiary} />
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={[styles.settingItem, styles.dangerItem]}
+                style={[dynamicStyles.settingItem, dynamicStyles.dangerItem]}
                 onPress={handleDeleteAccount}
               >
                 <View style={dynamicStyles.settingLeft}>
@@ -707,7 +707,7 @@ export default function SettingsScreen() {
           >
             <View style={dynamicStyles.sectionHeaderLeft}>
               <Shield size={20} color={themeColors.primary} />
-              <Text style={styles.sectionTitle}>Privacy & Security</Text>
+              <Text style={dynamicStyles.sectionTitle}>Privacy & Security</Text>
             </View>
             <ChevronRight size={20} color={themeColors.textSecondary} style={showPrivacySettings ? dynamicStyles.rotatedChevron : undefined} />
           </TouchableOpacity>
@@ -731,10 +731,10 @@ export default function SettingsScreen() {
               >
                 <View style={dynamicStyles.settingLeft}>
                   <Eye size={18} color={colors.textSecondary} />
-                  <Text style={styles.settingLabel}>Profile Visibility</Text>
+                  <Text style={dynamicStyles.settingLabel}>Profile Visibility</Text>
                 </View>
-                <View style={styles.valueContainer}>
-                  <Text style={styles.valueText}>
+                <View style={dynamicStyles.valueContainer}>
+                  <Text style={dynamicStyles.valueText}>
                     {privacySettings?.profileVisibility === 'public' ? 'Everyone' : 
                      privacySettings?.profileVisibility === 'followers' ? 'Followers Only' : 
                      privacySettings?.profileVisibility === 'private' ? 'Private' : 'Everyone'}
@@ -743,10 +743,10 @@ export default function SettingsScreen() {
                 </View>
               </TouchableOpacity>
               
-              <View style={styles.switchItem}>
+              <View style={dynamicStyles.switchItem}>
                 <View style={dynamicStyles.settingLeft}>
                   <Volume2 size={18} color={colors.textSecondary} />
-                  <Text style={styles.settingLabel}>Show Listening Activity</Text>
+                  <Text style={dynamicStyles.settingLabel}>Show Listening Activity</Text>
                 </View>
                 <Switch
                   value={privacySettings?.showListeningActivity || false}
@@ -785,10 +785,10 @@ export default function SettingsScreen() {
               >
                 <View style={dynamicStyles.settingLeft}>
                   <Shield size={18} color={colors.textSecondary} />
-                  <Text style={styles.settingLabel}>Two-Factor Authentication</Text>
+                  <Text style={dynamicStyles.settingLabel}>Two-Factor Authentication</Text>
                 </View>
-                <View style={styles.valueContainer}>
-                  <Text style={styles.valueText}>
+                <View style={dynamicStyles.valueContainer}>
+                  <Text style={dynamicStyles.valueText}>
                     {is2FAEnabled ? 'Enabled' : 'Disabled'}
                   </Text>
                   <ChevronRight size={18} color={themeColors.textTertiary} />
@@ -801,15 +801,15 @@ export default function SettingsScreen() {
               >
                 <View style={dynamicStyles.settingLeft}>
                   <Users size={18} color={colors.textSecondary} />
-                  <Text style={styles.settingLabel}>Blocked Users</Text>
+                  <Text style={dynamicStyles.settingLabel}>Blocked Users</Text>
                 </View>
                 <ChevronRight size={18} color={themeColors.textTertiary} />
               </TouchableOpacity>
               
-              <View style={styles.switchItem}>
+              <View style={dynamicStyles.switchItem}>
                 <View style={dynamicStyles.settingLeft}>
                   <BarChart size={18} color={colors.textSecondary} />
-                  <Text style={styles.settingLabel}>Data Collection</Text>
+                  <Text style={dynamicStyles.settingLabel}>Data Collection</Text>
                 </View>
                 <Switch
                   value={privacySettings?.dataCollection || false}
@@ -845,9 +845,9 @@ export default function SettingsScreen() {
           >
             <View style={dynamicStyles.sectionHeaderLeft}>
               <BarChart size={20} color={colors.primary} />
-              <Text style={styles.sectionTitle}>Analytics</Text>
+              <Text style={dynamicStyles.sectionTitle}>Analytics</Text>
             </View>
-            <ChevronRight size={20} color={colors.textSecondary} style={showAnalytics ? styles.rotatedChevron : undefined} />
+            <ChevronRight size={20} color={colors.textSecondary} style={showAnalytics ? dynamicStyles.rotatedChevron : undefined} />
           </TouchableOpacity>
           
           {showAnalytics && (
@@ -858,7 +858,7 @@ export default function SettingsScreen() {
               >
                 <View style={dynamicStyles.settingLeft}>
                   <BarChart size={18} color={colors.textSecondary} />
-                  <Text style={styles.settingLabel}>Track Performance</Text>
+                  <Text style={dynamicStyles.settingLabel}>Track Performance</Text>
                 </View>
                 <ChevronRight size={18} color={themeColors.textTertiary} />
               </TouchableOpacity>
@@ -869,7 +869,7 @@ export default function SettingsScreen() {
               >
                 <View style={dynamicStyles.settingLeft}>
                   <Users size={18} color={colors.textSecondary} />
-                  <Text style={styles.settingLabel}>Audience Insights</Text>
+                  <Text style={dynamicStyles.settingLabel}>Audience Insights</Text>
                 </View>
                 <ChevronRight size={18} color={themeColors.textTertiary} />
               </TouchableOpacity>
@@ -880,7 +880,7 @@ export default function SettingsScreen() {
               >
                 <View style={dynamicStyles.settingLeft}>
                   <BarChart size={18} color={colors.textSecondary} />
-                  <Text style={styles.settingLabel}>Revenue Reports</Text>
+                  <Text style={dynamicStyles.settingLabel}>Revenue Reports</Text>
                 </View>
                 <ChevronRight size={18} color={themeColors.textTertiary} />
               </TouchableOpacity>
@@ -888,18 +888,18 @@ export default function SettingsScreen() {
           )}
           
           {/* Notifications */}
-          <View style={styles.sectionHeader}>
+          <View style={dynamicStyles.sectionHeader}>
             <View style={dynamicStyles.sectionHeaderLeft}>
               <Bell size={20} color={colors.primary} />
-              <Text style={styles.sectionTitle}>Notifications</Text>
+              <Text style={dynamicStyles.sectionTitle}>Notifications</Text>
             </View>
           </View>
           
-          <View style={styles.sectionContent}>
-            <View style={styles.switchItem}>
-              <View style={styles.settingLeft}>
+          <View style={dynamicStyles.sectionContent}>
+            <View style={dynamicStyles.switchItem}>
+              <View style={dynamicStyles.settingLeft}>
                 <Bell size={18} color={colors.textSecondary} />
-                <Text style={styles.settingLabel}>Push Notifications</Text>
+                <Text style={dynamicStyles.settingLabel}>Push Notifications</Text>
               </View>
               <Switch
                 value={notifications}
@@ -911,12 +911,12 @@ export default function SettingsScreen() {
             </View>
             
             <TouchableOpacity 
-              style={styles.settingItem}
+              style={dynamicStyles.settingItem}
               onPress={handleEmailNotifications}
             >
-              <View style={styles.settingLeft}>
+              <View style={dynamicStyles.settingLeft}>
                 <Mail size={18} color={colors.textSecondary} />
-                <Text style={styles.settingLabel}>Email Notifications</Text>
+                <Text style={dynamicStyles.settingLabel}>Email Notifications</Text>
               </View>
               <ChevronRight size={18} color={colors.textTertiary} />
             </TouchableOpacity>
@@ -932,17 +932,17 @@ export default function SettingsScreen() {
           >
             <View style={dynamicStyles.sectionHeaderLeft}>
               <Volume2 size={20} color={colors.primary} />
-              <Text style={styles.sectionTitle}>Playback</Text>
+              <Text style={dynamicStyles.sectionTitle}>Playback</Text>
             </View>
-            <ChevronRight size={20} color={colors.textSecondary} style={showPlaybackSettings ? styles.rotatedChevron : undefined} />
+            <ChevronRight size={20} color={colors.textSecondary} style={showPlaybackSettings ? dynamicStyles.rotatedChevron : undefined} />
           </TouchableOpacity>
           
           {showPlaybackSettings && (
             <View style={dynamicStyles.sectionContent}>
-              <View style={styles.switchItem}>
+              <View style={dynamicStyles.switchItem}>
                 <View style={dynamicStyles.settingLeft}>
                   <Volume2 size={18} color={colors.textSecondary} />
-                  <Text style={styles.settingLabel}>Autoplay</Text>
+                  <Text style={dynamicStyles.settingLabel}>Autoplay</Text>
                 </View>
                 <Switch
                   value={autoplay}
@@ -959,10 +959,10 @@ export default function SettingsScreen() {
               >
                 <View style={dynamicStyles.settingLeft}>
                   <Headphones size={18} color={colors.textSecondary} />
-                  <Text style={styles.settingLabel}>Audio Quality</Text>
+                  <Text style={dynamicStyles.settingLabel}>Audio Quality</Text>
                 </View>
-                <View style={styles.valueContainer}>
-                  <Text style={styles.valueText}>
+                <View style={dynamicStyles.valueContainer}>
+                  <Text style={dynamicStyles.valueText}>
                     {playbackSettings?.streamingQuality === 'low' ? 'Low' :
                      playbackSettings?.streamingQuality === 'normal' ? 'Normal' :
                      playbackSettings?.streamingQuality === 'high' ? 'High' :
@@ -978,15 +978,15 @@ export default function SettingsScreen() {
               >
                 <View style={dynamicStyles.settingLeft}>
                   <Settings size={18} color={colors.textSecondary} />
-                  <Text style={styles.settingLabel}>Equalizer</Text>
+                  <Text style={dynamicStyles.settingLabel}>Equalizer</Text>
                 </View>
                 <ChevronRight size={18} color={themeColors.textTertiary} />
               </TouchableOpacity>
               
-              <View style={styles.switchItem}>
+              <View style={dynamicStyles.switchItem}>
                 <View style={dynamicStyles.settingLeft}>
                   <Volume2 size={18} color={colors.textSecondary} />
-                  <Text style={styles.settingLabel}>Volume Normalization</Text>
+                  <Text style={dynamicStyles.settingLabel}>Volume Normalization</Text>
                 </View>
                 <Switch
                   value={playbackSettings?.volumeNormalization || false}
@@ -1008,18 +1008,18 @@ export default function SettingsScreen() {
           )}
           
           {/* Downloads */}
-          <View style={styles.sectionHeader}>
+          <View style={dynamicStyles.sectionHeader}>
             <View style={dynamicStyles.sectionHeaderLeft}>
               <Download size={20} color={colors.primary} />
-              <Text style={styles.sectionTitle}>Downloads</Text>
+              <Text style={dynamicStyles.sectionTitle}>Downloads</Text>
             </View>
           </View>
           
-          <View style={styles.sectionContent}>
-            <View style={styles.switchItem}>
-              <View style={styles.settingLeft}>
+          <View style={dynamicStyles.sectionContent}>
+            <View style={dynamicStyles.switchItem}>
+              <View style={dynamicStyles.settingLeft}>
                 <Wifi size={18} color={colors.textSecondary} />
-                <Text style={styles.settingLabel}>Download on Wi-Fi Only</Text>
+                <Text style={dynamicStyles.settingLabel}>Download on Wi-Fi Only</Text>
               </View>
               <Switch
                 value={downloadOnWifi}
@@ -1031,15 +1031,15 @@ export default function SettingsScreen() {
             </View>
             
             <TouchableOpacity 
-              style={styles.settingItem}
+              style={dynamicStyles.settingItem}
               onPress={handleStorageLocation}
             >
-              <View style={styles.settingLeft}>
+              <View style={dynamicStyles.settingLeft}>
                 <Download size={18} color={colors.textSecondary} />
-                <Text style={styles.settingLabel}>Storage Location</Text>
+                <Text style={dynamicStyles.settingLabel}>Storage Location</Text>
               </View>
-              <View style={styles.valueContainer}>
-                <Text style={styles.valueText}>
+              <View style={dynamicStyles.valueContainer}>
+                <Text style={dynamicStyles.valueText}>
                   {playbackSettings?.downloadLocation === 'external' ? 'External Storage' : 'Internal Storage'}
                 </Text>
                 <ChevronRight size={18} color={themeColors.textTertiary} />
@@ -1047,42 +1047,42 @@ export default function SettingsScreen() {
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={styles.settingItem}
+              style={dynamicStyles.settingItem}
               onPress={handleClearCache}
               disabled={isSaving}
             >
-              <View style={styles.settingLeft}>
+              <View style={dynamicStyles.settingLeft}>
                 <Trash2 size={18} color={colors.textSecondary} />
-                <Text style={styles.settingLabel}>Clear Cache</Text>
+                <Text style={dynamicStyles.settingLabel}>Clear Cache</Text>
               </View>
-              <View style={styles.valueContainer}>
-                <Text style={styles.valueText}>256 MB</Text>
+              <View style={dynamicStyles.valueContainer}>
+                <Text style={dynamicStyles.valueText}>256 MB</Text>
                 <ChevronRight size={18} color={themeColors.textTertiary} />
               </View>
             </TouchableOpacity>
           </View>
           
           {/* Appearance */}
-          <View style={styles.sectionHeader}>
+          <View style={dynamicStyles.sectionHeader}>
             <View style={dynamicStyles.sectionHeaderLeft}>
               {isDark ? (
                 <Moon size={20} color={themeColors.primary} />
               ) : (
                 <Sun size={20} color={themeColors.primary} />
               )}
-              <Text style={styles.sectionTitle}>Appearance</Text>
+              <Text style={dynamicStyles.sectionTitle}>Appearance</Text>
             </View>
           </View>
           
-          <View style={styles.sectionContent}>
-            <View style={styles.switchItem}>
-              <View style={styles.settingLeft}>
+          <View style={dynamicStyles.sectionContent}>
+            <View style={dynamicStyles.switchItem}>
+              <View style={dynamicStyles.settingLeft}>
                 {isDark ? (
                   <Moon size={18} color={themeColors.textSecondary} />
                 ) : (
                   <Sun size={18} color={themeColors.textSecondary} />
                 )}
-                <Text style={styles.settingLabel}>Dark Mode</Text>
+                <Text style={dynamicStyles.settingLabel}>Dark Mode</Text>
               </View>
               <Switch
                 value={isDark}
@@ -1093,31 +1093,31 @@ export default function SettingsScreen() {
             </View>
             
             <TouchableOpacity 
-              style={styles.settingItem}
+              style={dynamicStyles.settingItem}
               onPress={handleTextSize}
             >
-              <View style={styles.settingLeft}>
+              <View style={dynamicStyles.settingLeft}>
                 <Type size={18} color={colors.textSecondary} />
-                <Text style={styles.settingLabel}>Text Size</Text>
+                <Text style={dynamicStyles.settingLabel}>Text Size</Text>
               </View>
-              <View style={styles.valueContainer}>
-                <Text style={styles.valueText}>Medium</Text>
+              <View style={dynamicStyles.valueContainer}>
+                <Text style={dynamicStyles.valueText}>Medium</Text>
                 <ChevronRight size={18} color={themeColors.textTertiary} />
               </View>
             </TouchableOpacity>
           </View>
           
           {/* About */}
-          <View style={styles.sectionHeader}>
+          <View style={dynamicStyles.sectionHeader}>
             <View style={dynamicStyles.sectionHeaderLeft}>
               <Info size={20} color={colors.primary} />
-              <Text style={styles.sectionTitle}>About</Text>
+              <Text style={dynamicStyles.sectionTitle}>About</Text>
             </View>
           </View>
           
-          <View style={styles.sectionContent}>
+          <View style={dynamicStyles.sectionContent}>
             <TouchableOpacity 
-              style={styles.settingItem}
+              style={dynamicStyles.settingItem}
               onPress={() => {
                 Alert.alert(
                   "Terms of Service",
@@ -1126,15 +1126,15 @@ export default function SettingsScreen() {
                 );
               }}
             >
-              <View style={styles.settingLeft}>
+              <View style={dynamicStyles.settingLeft}>
                 <FileText size={18} color={colors.textSecondary} />
-                <Text style={styles.settingLabel}>Terms of Service</Text>
+                <Text style={dynamicStyles.settingLabel}>Terms of Service</Text>
               </View>
               <ChevronRight size={18} color={colors.textTertiary} />
             </TouchableOpacity>
             
             <TouchableOpacity 
-              style={styles.settingItem}
+              style={dynamicStyles.settingItem}
               onPress={() => {
                 Alert.alert(
                   "Privacy Policy",
@@ -1143,241 +1143,35 @@ export default function SettingsScreen() {
                 );
               }}
             >
-              <View style={styles.settingLeft}>
+              <View style={dynamicStyles.settingLeft}>
                 <Shield size={18} color={colors.textSecondary} />
-                <Text style={styles.settingLabel}>Privacy Policy</Text>
+                <Text style={dynamicStyles.settingLabel}>Privacy Policy</Text>
               </View>
               <ChevronRight size={18} color={colors.textTertiary} />
             </TouchableOpacity>
             
-            <View style={styles.settingItem}>
-              <View style={styles.settingLeft}>
+            <View style={dynamicStyles.settingItem}>
+              <View style={dynamicStyles.settingLeft}>
                 <Info size={18} color={colors.textSecondary} />
-                <Text style={styles.settingLabel}>Version</Text>
+                <Text style={dynamicStyles.settingLabel}>Version</Text>
               </View>
-              <Text style={styles.versionText}>1.0.0</Text>
+              <Text style={dynamicStyles.versionText}>1.0.0</Text>
             </View>
           </View>
           
           {/* Logout */}
           <TouchableOpacity 
-            style={styles.logoutButton}
+            style={dynamicStyles.logoutButton}
             onPress={handleLogout}
           >
             <LogOut size={20} color={colors.text} />
-            <Text style={styles.logoutText}>Logout</Text>
+            <Text style={dynamicStyles.logoutText}>Logout</Text>
           </TouchableOpacity>
         </ScrollView>
       )}
     </SafeAreaView>
   );
 }
-
-const createStyles = (colors: any) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  backButton: {
-    marginLeft: 8,
-  },
-  scrollView: {
-    flex: 1,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    color: colors.text,
-    fontSize: 16,
-    marginTop: 16,
-  },
-  successMessage: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(76, 175, 80, 0.1)',
-    padding: 12,
-    margin: 16,
-    borderRadius: 8,
-    borderLeftWidth: 4,
-    borderLeftColor: '#4CAF50',
-  },
-  successMessageText: {
-    color: '#4CAF50',
-    marginLeft: 8,
-    fontSize: 14,
-  },
-  errorMessage: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(244, 67, 54, 0.1)',
-    padding: 12,
-    margin: 16,
-    borderRadius: 8,
-    borderLeftWidth: 4,
-    borderLeftColor: colors.error,
-  },
-  errorMessageText: {
-    color: colors.error,
-    marginLeft: 8,
-    fontSize: 14,
-  },
-  profileSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    backgroundColor: colors.card,
-    marginBottom: 16,
-  },
-  profileImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 16,
-  },
-  profileInfo: {
-    flex: 1,
-  },
-  profileName: {
-    color: colors.text,
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 4,
-  },
-  profileUsername: {
-    color: colors.textSecondary,
-    fontSize: 14,
-  },
-  editProfileButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.cardElevated,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    backgroundColor: colors.background,
-  },
-  sectionHeaderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  sectionTitle: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 12,
-  },
-  rotatedChevron: {
-    transform: [{ rotate: '90deg' }],
-  },
-  sectionContent: {
-    backgroundColor: colors.card,
-    marginBottom: 16,
-  },
-  settingItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  settingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  settingLabel: {
-    color: colors.text,
-    fontSize: 16,
-    marginLeft: 12,
-  },
-  switchItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  valueContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  valueText: {
-    color: colors.textSecondary,
-    fontSize: 14,
-    marginRight: 8,
-  },
-  versionText: {
-    color: colors.textTertiary,
-    fontSize: 14,
-  },
-  dangerItem: {
-    borderBottomWidth: 0,
-  },
-  dangerText: {
-    color: colors.error,
-    fontSize: 16,
-    marginLeft: 12,
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.cardElevated,
-    marginHorizontal: 16,
-    marginVertical: 24,
-    padding: 16,
-    borderRadius: 8,
-  },
-  logoutText: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '600',
-    marginLeft: 8,
-  },
-  notLoggedIn: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  notLoggedInTitle: {
-    color: colors.text,
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 12,
-  },
-  notLoggedInText: {
-    color: colors.textSecondary,
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  loginButton: {
-    backgroundColor: '#4169E1',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-  },
-  loginButtonText: {
-    color: colors.text,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
 
 const createStyles = (colors: any) => StyleSheet.create({
   container: {
