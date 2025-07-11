@@ -283,6 +283,10 @@ export default function PlaylistCreationModal({ visible, onClose, onSuccess }: P
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ flexGrow: 1 }}
+            nestedScrollEnabled={Platform.OS === 'android'}
+            removeClippedSubviews={Platform.OS === 'android'}
+            scrollEnabled={true}
+            persistentScrollbar={Platform.OS === 'android'}
           >
             {/* Cover Art Section */}
             <Text style={styles.label}>Cover Art (optional)</Text>
@@ -414,6 +418,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: 12,
     overflow: 'hidden',
+    ...Platform.select({
+      android: {
+        elevation: 8,
+      },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+    }),
   },
   header: {
     flexDirection: 'row',

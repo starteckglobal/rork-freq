@@ -229,6 +229,13 @@ export default function AddToPlaylistModal({
                 style={styles.playlistList}
                 contentContainerStyle={styles.playlistListContent}
                 showsVerticalScrollIndicator={false}
+                nestedScrollEnabled={Platform.OS === 'android'}
+                removeClippedSubviews={Platform.OS === 'android'}
+                initialNumToRender={10}
+                maxToRenderPerBatch={5}
+                windowSize={10}
+                scrollEnabled={true}
+                persistentScrollbar={Platform.OS === 'android'}
               />
             )}
             
@@ -281,6 +288,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     borderRadius: 12,
     overflow: 'hidden',
+    ...Platform.select({
+      android: {
+        elevation: 8,
+      },
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+      },
+    }),
   },
   header: {
     flexDirection: 'row',

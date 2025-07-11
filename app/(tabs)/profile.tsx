@@ -241,13 +241,15 @@ export default function ProfileScreen() {
           { paddingBottom: getContentPaddingBottom() }
         ]}
         showsVerticalScrollIndicator={false}
-        nestedScrollEnabled={true}
-        removeClippedSubviews={false}
+        nestedScrollEnabled={Platform.OS === 'android'}
+        removeClippedSubviews={Platform.OS === 'android'}
         scrollEventThrottle={16}
         keyboardShouldPersistTaps="handled"
-        bounces={true}
+        bounces={Platform.OS === 'ios'}
         alwaysBounceVertical={false}
-        overScrollMode="auto"
+        overScrollMode={Platform.OS === 'android' ? 'always' : 'auto'}
+        persistentScrollbar={Platform.OS === 'android'}
+        scrollEnabled={true}
       >
         <View style={styles.profileHeader}>
           <View style={styles.avatarContainer}>
